@@ -1,0 +1,1425 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!-- generated HTML -->
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TMMA VA KPI Dashboard (2026) — Est W3 Mar (Actual Jan–Feb)</title>
+  <style>
+    :root{
+      --bg1:#0b2a5b; --bg2:#0e3a7a; --bg3:#f5f8ff;
+      --panel:#ffffff; --panel2:#f7fbff;
+      --text:#0f172a; --muted:#64748b; --accent:#2563eb;
+      --good:#16a34a; --bad:#dc2626; --warn:#d97706;
+      --shadow: 0 12px 28px rgba(2, 8, 23, .16);
+      --radius:14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans Thai", "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1100px 520px at 15% -10%, rgba(255,255,255,.16), transparent 55%),
+        radial-gradient(900px 520px at 90% 0%, rgba(37,99,235,.35), transparent 55%),
+        linear-gradient(180deg, var(--bg2) 0%, var(--bg1) 38%, var(--bg3) 38%, var(--bg3) 100%);
+      min-height:100vh;
+    }
+
+    header{
+      position:sticky; top:0; z-index:10;
+      background: linear-gradient(180deg, rgba(14,58,122,.98), rgba(11,42,91,.98));
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 12px 28px rgba(2,8,23,.22);
+    }
+    .header-inner{
+      max-width:1400px;
+      margin:0 auto;
+      padding:14px 18px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .title{ display:flex; flex-direction:column; gap:4px; min-width: 420px; }
+    .title h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      font-weight:900;
+      color:#ffffff;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .title .sub{
+      font-size:12px;
+      color: rgba(255,255,255,.78);
+      line-height:1.35;
+    }
+
+    .hero-badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      background: rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.22);
+      color:#ffffff; font-size:12px; font-weight:950;
+      box-shadow: 0 8px 18px rgba(2,8,23,.18);
+      white-space:nowrap;
+    }
+    .hero-badge .pill{
+      display:inline-flex; align-items:center;
+      padding:2px 8px; border-radius:999px;
+      background: rgba(245,158,11,.18);
+      border:1px solid rgba(245,158,11,.35);
+      color:#fff7ed; font-weight:950; font-size:11px;
+    }
+
+    .toolbar{
+      display:flex; align-items:center; gap:10px;
+      margin-left:auto; flex-wrap:wrap; justify-content:flex-end;
+    }
+    .control{
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:12px;
+      padding:8px 10px;
+      display:flex; align-items:center; gap:8px;
+      box-shadow: 0 8px 18px rgba(2,8,23,.18);
+    }
+    .control label{ font-size:12px; color: rgba(255,255,255,.82); font-weight:800; }
+
+    select, button, input[type="text"]{
+      font-family:var(--sans);
+      color:#0f172a;
+      background: rgba(255,255,255,.95);
+      border:1px solid rgba(255,255,255,.25);
+      border-radius:10px;
+      padding:7px 10px;
+      font-size:12px;
+      outline:none;
+    }
+    select:focus, button:focus, input[type="text"]:focus{
+      border-color: rgba(37,99,235,.55);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.18);
+    }
+
+    button{
+      cursor:pointer;
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(245,248,255,.98));
+      border-color: rgba(255,255,255,.25);
+      font-weight:900;
+    }
+    button.secondary{
+      background: rgba(255,255,255,.16);
+      color:#ffffff;
+      border-color: rgba(255,255,255,.22);
+    }
+    button.danger{
+      background: rgba(220,38,38,.14);
+      color:#ffffff;
+      border-color: rgba(220,38,38,.35);
+    }
+
+    .wrap{
+      max-width:1400px;
+      margin:0 auto;
+      padding: 16px 18px 34px;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:16px;
+    }
+    @media (max-width: 1100px){ .wrap{ grid-template-columns: 1fr; } }
+
+    .panel{
+      background: var(--panel);
+      border:1px solid rgba(37,99,235,.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel .hd{
+      padding: 12px 14px;
+      border-bottom:1px solid rgba(2,8,23,.06);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background: linear-gradient(180deg, #f7fbff, #ffffff);
+    }
+    .panel .hd h2{
+      margin:0;
+      font-size:13px;
+      color: #0b2a5b;
+      font-weight:950;
+      letter-spacing:.2px;
+    }
+    .panel .bd{ padding: 12px 14px; }
+
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; }
+    .tab{
+      padding:7px 10px;
+      border-radius:999px;
+      background: rgba(37,99,235,.06);
+      border:1px solid rgba(37,99,235,.14);
+      font-size:12px;
+      color: #0b2a5b;
+      cursor:pointer;
+      user-select:none;
+      font-weight:950;
+    }
+    .tab.active{
+      color: #ffffff;
+      border-color: rgba(37,99,235,.55);
+      background: linear-gradient(180deg, rgba(37,99,235,.95), rgba(37,99,235,.85));
+    }
+
+    .kpi-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media (max-width: 1100px){ .kpi-grid{ grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 620px){ .kpi-grid{ grid-template-columns: 1fr; } }
+
+    .kpi{
+      background: var(--panel);
+      border:1px solid rgba(2,8,23,.06);
+      border-radius: 14px;
+      padding: 12px 12px;
+      box-shadow: 0 8px 18px rgba(2,8,23,.08);
+    }
+    .kpi .name{
+      font-size:12px;
+      color: var(--muted);
+      margin-bottom:8px;
+      display:flex; align-items:center; gap:8px;
+      font-weight:900;
+    }
+    .kpi .value{
+      font-size:22px;
+      font-weight:950;
+      letter-spacing:.2px;
+      display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+      color:#0f172a;
+    }
+    .kpi .unit{ font-size:12px; color: var(--muted); font-weight:900; }
+    .kpi .subrow{
+      display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;
+      font-size:12px; color: var(--muted);
+    }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 8px; border-radius:999px;
+      background: rgba(37,99,235,.06);
+      border:1px solid rgba(37,99,235,.12);
+      font-weight:900;
+      color:#0b2a5b;
+    }
+    .dot{ width:8px; height:8px; border-radius:50%; background: var(--accent); }
+    .dot.good{ background: var(--good); }
+    .dot.bad{ background: var(--bad); }
+    .dot.warn{ background: var(--warn); }
+
+    .chart{
+      width:100%;
+      height:260px;
+      background: var(--panel);
+      border:1px solid rgba(2,8,23,.06);
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: 0 10px 24px rgba(2,8,23,.10);
+    }
+    .chart canvas{ width:100%; height:100%; display:block; }
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius: 14px;
+      border:1px solid rgba(2,8,23,.06);
+      background: var(--panel);
+      box-shadow: 0 10px 24px rgba(2,8,23,.10);
+    }
+    th, td{
+      padding:10px 10px;
+      font-size:12px;
+      border-bottom:1px solid rgba(2,8,23,.06);
+      text-align:right;
+      white-space:nowrap;
+    }
+    th:first-child, td:first-child{ text-align:left; }
+    thead th{
+      position:sticky; top:0;
+      background: linear-gradient(180deg, #f7fbff, #ffffff);
+      color: #0b2a5b;
+      font-weight:950;
+      border-bottom:1px solid rgba(2,8,23,.06);
+      z-index:1;
+    }
+    tbody tr:hover td{ background: rgba(37,99,235,.05); }
+    tbody tr:last-child td{ border-bottom:none; }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 1100px){ .grid-2{ grid-template-columns: 1fr; } }
+
+    .note{
+      width:100%;
+      min-height: 110px;
+      resize: vertical;
+      background: #ffffff;
+      color: var(--text);
+      border:1px solid rgba(2,8,23,.10);
+      border-radius: 14px;
+      padding:10px 12px;
+      font-family:var(--sans);
+      font-size:12px;
+      outline:none;
+    }
+
+    .small{ font-size:12px; color:var(--muted); line-height:1.45; }
+    .divider{ height:1px; background: rgba(2,8,23,.08); margin:12px 0; }
+
+    .badge{
+      font-size:11px;
+      color: #0b2a5b;
+      border:1px solid rgba(37,99,235,.14);
+      background: rgba(37,99,235,.06);
+      border-radius:999px;
+      padding:4px 8px;
+      white-space:nowrap;
+      font-weight:950;
+    }
+    .badge.estfull{
+      color:#7c2d12;
+      border-color: rgba(245,158,11,.45);
+      background: rgba(245,158,11,.14);
+      box-shadow: 0 8px 18px rgba(245,158,11,.10);
+    }
+
+    .status{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .right-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
+
+    .table-title{
+      font-weight:950;
+      color:#0b2a5b;
+      margin: 12px 0 8px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="header-inner">
+    <div class="title">
+      <h1>
+        🧭 TMMA Value Acceleration (VA) — KPI Dashboard (2026)
+        <span class="hero-badge" id="heroMonth">
+          📌 Default:
+          <span class="pill">Est Full</span>
+          <span id="heroMonthText">—</span>
+        </span>
+      </h1>
+      <div class="sub">
+        Data: VA KPI_Est W3 Mar'26.xlsx • <b>Actual=Jan–Feb</b>, <b>Est=Mar–Dec</b> (Est dashed + bridge Feb→Mar) [5]<br/>
+        Cost rule: <b>Impact = Plan − Current</b> (overspend ⇒ negative ⇒ red) แต่หัวตารางยังใช้ <b>Var (A‑P)</b>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="control">
+        <label for="monthSel">📅 เดือน</label>
+        <select id="monthSel"></select>
+      </div>
+      <div class="control">
+        <label for="viewSel">🪟 มุมมอง</label>
+        <select id="viewSel">
+          <option value="monthly" selected>Monthly</option>
+          <option value="series">Series (table)</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="formatSel">🔢 ตัวเลข</label>
+        <select id="formatSel">
+          <option value="auto" selected>Auto</option>
+          <option value="1">ทศนิยม 1</option>
+          <option value="2">ทศนิยม 2</option>
+          <option value="0">จำนวนเต็ม</option>
+        </select>
+      </div>
+      <button class="secondary" id="btnExportNotes" title="Export notes เป็น JSON">⬇️ Export Notes</button>
+      <button class="danger" id="btnResetNotes" title="ลบ notes (เครื่องนี้)">🗑️ Reset Notes</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- LEFT -->
+  <section class="panel">
+    <div class="hd">
+      <h2>📝 Setup & Dialogue</h2>
+      <div class="status">
+        <span class="badge" id="dataBadge">📎 Data embedded</span>
+        <span class="badge estfull" id="monthBadge">—</span>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="small">
+        <b>Rule:</b> Actual = <b>Jan–Feb’26</b> และ Est = <b>Mar–Dec’26</b><br/>
+        กราฟ: เส้น <b>Est</b> เป็น <b>เส้นปะ</b> และเชื่อม <b>Feb → Mar</b> ด้วยเส้นปะ (bridge)
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="small"><b>🗣️ Monthly Dialogue Notes</b> (รองรับโหมด embed โดยปิด localStorage อัตโนมัติถ้าใช้ไม่ได้)</div>
+      <div style="height:8px"></div>
+
+      <label class="small" for="ownerInput">👤 Owner/PIC</label>
+      <input id="ownerInput" type="text" placeholder="เช่น Meng / Golffy / P'ODDY / Ua / Benz / ..." style="width:100%; margin:6px 0 10px;" />
+
+      <label class="small" for="rootCause">🧩 Root cause / Key message</label>
+      <textarea id="rootCause" class="note" placeholder="สรุปประเด็น: ทำไมถึง gap? อะไรเปลี่ยน? ลูกค้า/ราคา/volume/cost?"></textarea>
+
+      <div style="height:10px"></div>
+      <label class="small" for="nextAction">✅ Action next month</label>
+      <textarea id="nextAction" class="note" placeholder="Action ที่จะทำ, owner, due date, expected impact"></textarea>
+
+      <div style="height:10px"></div>
+      <div class="right-actions">
+        <button id="btnSaveNotes">💾 Save Notes</button>
+        <button class="secondary" id="btnLoadNotes">🔄 Load Notes</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT -->
+  <section class="panel">
+    <div class="hd">
+      <h2>📊 Dashboard</h2>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="bd" id="content"></div>
+  </section>
+</main>
+
+<script>
+/* =========================
+   Safe storage (SharePoint embed/iframe friendly)
+========================= */
+const STORAGE = (() => {
+  try {
+    const k="__va_test__";
+    window.localStorage.setItem(k,"1");
+    window.localStorage.removeItem(k);
+    return window.localStorage;
+  } catch (e) {
+    return {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+      key: () => null,
+      get length(){ return 0; }
+    };
+  }
+})();
+
+/* =========================
+   Data (subset) from VA KPI_Est W3 Mar'26.xlsx [5]
+   Arrays length=13: index 0 = Est Full, index 1..12 = Jan..Dec
+========================= */
+const DATA = {
+  meta: {
+    year: 2026,
+    months: ["Est Full","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+    source: "VA KPI_Est W3 Mar'26.xlsx"
+  },
+
+  initiatives: [
+    { no:1, name:"Maximize MAA sale vol, margin", pic:"Meng", targetMB:50, note:"Ex-price +50 USD/MT" },
+    { no:2, name:"Optimize business model for BMA and MMA", pic:"Golffy", targetMB:70, note:"Ex-price +100 USD/MT" },
+    { no:3, name:"Sheet: Regional development, increase net con, etc.", pic:"P'ODDY", targetMB:20, note:"same profit as Y25" },
+    { no:4, name:"Supply chain feed cost", pic:"Ua", targetMB:20, note:"BOH/C4 optimization/spot" },
+    { no:5, name:"MMA cost reduction to be 1st PGC", pic:"Benz", targetMB:60, note:"VCP -20 USD/MT" },
+    { no:6, name:"Other VC cost (Maintenance)", pic:"P'Bob", targetMB:30, note:"-" },
+    { no:7, name:"Other VC cost - price (Cat/Chem/UT/Film/color/pallet)", pic:"P'Toi", targetMB:40, note:"-" },
+    { no:8, name:"Distribution & service cost (store+stock)", pic:"Kija", targetMB:40, note:"Transport ~392 MB *10%" }
+  ],
+
+  executive: {
+    coi: {
+      label:"Overall COI", unit:"MB",
+      plan:[-27.525118,-38.217483,-9.483803,7.975982,1.350012,-41.788841,-60.524728,39.944375,39.216635,42.169693,31.719316,-50.176131,10.289854],
+      actual:[-131.332314,-38.217483,-35.51302,-92.016504,-35.138241,-120.962102,-26.937399,13.017396,56.489845,80.66464,73.962125,-28.442021,21.76045]
+    },
+    profit: {
+      label:"Profit", unit:"MB",
+      plan:[-26.049454,-28.303922,-8.722229,5.661042,1.057731,-34.115583,-49.324501,31.644089,31.690016,33.864227,24.90535,-42.536432,8.130758],
+      actual:[-107.398233,-28.303922,-29.951002,-75.281232,-29.191383,-99.181236,-22.545432,11.092557,45.970906,65.313039,59.977684,-23.71882,18.420608]
+    },
+    vr: {
+      label:"VR from VA", unit:"MB",
+      plan:[330,27.5,27.5,27.5,27.5,27.5,27.5,27.5,27.5,27.5,27.5,27.5,27.5],
+      actual:[5.72,5.72,6.68,null,null,null,null,null,null,null,null,null,null]
+    }
+  },
+
+  volume: {
+    mma: { label:"MMA sales volume", unit:"Ton",
+      plan:[90949.479,6371.149,6549.8,9346.326,8235.7,6043.026,5776.426,9587.026,7349.026,8325.3,7403.7,7411.3,8550.7],
+      actual:[84341.366,6371.149,6955.192,6643.273,3727.7,3332.5,5212.5,8984.026,8726.026,8722.3,9280.7,8308.3,8077.7]
+    },
+    bma: { label:"BMA sales volume", unit:"Ton",
+      plan:[23163.61,1683.8,2822.36,1811.2,1704.2,1937.3,1865.6,2063.4,1982,1920.1,1804.7,1870.68,1698.27],
+      actual:[21876.98,1683.8,2153.23,2728.28,1226.42,1191.5,1692.6,1959.4,1845,1969.1,1846.7,1901.68,1679.27]
+    },
+    maa: { label:"MAA sales volume", unit:"Ton",
+      plan:[28845.74,2443.09,3135.4,2420,2235.4,2228,2177,2108,2435,2673,2552.85,2115,2323],
+      actual:[26900.07,2443.09,2427.51,2646.22,2021.4,1851,1703,2094,2097,2591,2591.85,2073,2361]
+    },
+    sheet:{ label:"Sheet sales volume", unit:"Ton",
+      plan:[9389.83954,716.83954,691,595,653,706,843,800,847,896,907,858,877],
+      actual:[10090.02166,716.83954,941.80057,610.58186,1120.79969,696,819,800,847,896,907,858,877]
+    }
+  },
+
+  price: {
+    mma_ex:{ label:"MMA Ex-Price (XF)", unit:"USD/T",
+      plan:[700,700,700,700,700,700,700,700,700,700,700,700,700],
+      actual:[658.731591,591.655457,528.311159,438.444644,899.697827,754.908069,694.032903,675.831696,682.625825,687.131833,707.993241,708.432884,700.066818]
+    },
+    ibma_ex:{ label:"IBMA Ex-Price (XF)", unit:"USD/T",
+      plan:[550,550,550,550,550,550,550,550,550,550,550,550,550],
+      actual:[366.792814,421.889237,325.10937,169.690388,472.295656,285.514468,292.016367,428.340062,365.478585,416.364603,432.583673,463.697351,434.881492]
+    },
+    nbma_ex:{ label:"NBMA Ex-Price (XF)", unit:"USD/T",
+      plan:[350,350,350,350,350,350,350,350,350,350,350,350,350],
+      actual:[221.220259,225.262617,166.800658,100.480261,259.903907,217.365918,298.197729,237.168304,208.944896,213.411966,263.706302,272.678693,266.509292]
+    },
+    maa_ex:{ label:"MAA Ex-Price (XF)", unit:"USD/T",
+      plan:[750,750,750,750,750,750,750,750,750,750,750,750,750],
+      actual:[743.805041,596.476899,514.410678,435.184503,1009.939921,1030.424378,1010.71138,729.940392,736.88329,727.443895,778.629284,771.539968,769.746943]
+    },
+    sheet_ex:{ label:"Sheet Ex-Price (XF)", unit:"USD/T",
+      plan:[1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450,1450],
+      actual:[1130.864414,1156.734976,1134.697541,1061.222269,790.563408,853.518193,1020.429106,1294.446897,1294.026177,1329.576572,1262.963216,1078.35532,1299.775915]
+    }
+  },
+
+  cost: {
+    pgc_mma:{ label:"PGC MMA (USD/T)", unit:"USD/T",
+      plan:[1080.277823,991.9141,1051.15235,1398.288493,1285.735818,1167.259319,1108.02107,1013.23987,995.468395,977.696921,983.620746,1007.316045,983.620746],
+      actual:[1343.109449,1316.41952,1229.378862,1480.584087,1717.614543,2063.580975,1494.288303,1232.803016,1182.073655,1132.077347,1159.267748,1307.255389,1233.343264]
+    },
+    mtn_mma:{ label:"MTN AVG Cost MMA", unit:"USD/T",
+      plan:[20,20,20,20,20,20,20,20,20,20,20,20,20],
+      actual:[74.8352,76.51378,76.525771,75.623018,75.95948,75.95948,75.95948,73.622265,73.622265,73.622265,73.622265,73.622265,73.622265]
+    },
+    catchem:{ label:"Cat & Chem Cost", unit:"USD/T",
+      plan:[66,66,66,66,66,66,66,66,66,66,66,66,66],
+      actual:[115.276819,108.594091,110.116549,130.454505,110.220886,154.587278,145.032232,107.483667,106.507835,107.744397,108.737538,111.469608,105.133509]
+    },
+    transport_mma:{ label:"Transportation cost MMA", unit:"USD/T",
+      plan:[50.779757,53.745582,49.139572,59.527348,62.059441,29.153855,23.758053,57.123635,47.509596,48.063852,44.559376,44.31933,72.266458],
+      actual:[48.383703,53.745582,46.771847,42.386632,26.243176,35.782424,62.823521,48.719648,49.668415,49.706566,50.340802,41.438077,58.278253]
+    },
+    transport_maa:{ label:"Transportation cost MAA", unit:"USD/T",
+      plan:[116.496217,104.639579,83.778723,132.314318,115.883263,112.858996,113.905374,111.633737,110.025853,134.060737,134.579207,108.520497,141.526183],
+      actual:[109.037081,104.639579,98.950886,66.537879,107.327521,78.43527,102.287486,120.420012,120.412298,128.262515,128.132695,121.653519,128.577391]
+    },
+    transport_bma:{ label:"Transportation cost BMA", unit:"USD/T",
+      plan:[138.661481,129.369558,122.027388,155.923008,156.375883,137.57778,64.243898,155.055646,158.63218,137.212789,140.66138,149.289798,166.898259],
+      actual:[138.660456,129.369558,121.554562,142.178113,131.493214,83.544659,88.619495,153.830563,158.410428,153.199128,154.749603,155.209032,166.092975]
+    }
+  }
+};
+
+/* Chart theme */
+const CHART = {
+  plan:"rgba(37,99,235,.95)",
+  actual:"rgba(22,163,74,.95)",
+  est:"rgba(245,158,11,.95)",
+  grid:"rgba(226,238,252,.95)",
+  axis:"rgba(100,116,139,.95)",
+  text:"rgba(15,23,42,.95)"
+};
+
+/* Actual/Est split: Actual Jan–Feb (1..2), Est Mar–Dec (3..12) */
+const ACTUAL_END_MONTH_IDX = 2;
+
+/* Basic */
+function isNum(x){ return typeof x === "number" && Number.isFinite(x); }
+function safeNum(x){ return isNum(x) ? x : null; }
+function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+function fmtNum(x, decimals){
+  if(!isNum(x)) return "—";
+  const d = (decimals === "auto")
+    ? (Math.abs(x) >= 1000 ? 0 : (Math.abs(x) >= 10 ? 1 : 2))
+    : Number(decimals);
+  return x.toLocaleString(undefined, { minimumFractionDigits:d, maximumFractionDigits:d });
+}
+function escapeHtml(str){
+  return String(str ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/* series split */
+function buildActualSeries(raw){
+  const a = new Array(13).fill(null);
+  for(let i=1;i<=ACTUAL_END_MONTH_IDX;i++) a[i] = safeNum(raw?.[i]);
+  return a;
+}
+function buildEstSeries(raw){
+  const e = new Array(13).fill(null);
+  e[0] = safeNum(raw?.[0]); // Est Full
+  for(let i=ACTUAL_END_MONTH_IDX+1;i<=12;i++) e[i] = safeNum(raw?.[i]); // Mar-Dec
+  return e;
+}
+function actualValueAt(raw, idx){
+  return (idx>=1 && idx<=ACTUAL_END_MONTH_IDX) ? safeNum(raw?.[idx]) : null;
+}
+function estValueAt(raw, idx){
+  if(idx === 0) return safeNum(raw?.[0]);
+  return (idx>=ACTUAL_END_MONTH_IDX+1) ? safeNum(raw?.[idx]) : null;
+}
+function currentValueAt(raw, idx){
+  const a = actualValueAt(raw, idx);
+  return (a !== null) ? a : estValueAt(raw, idx);
+}
+function currentType(idx){
+  if(idx>=1 && idx<=ACTUAL_END_MONTH_IDX) return "Actual";
+  return "Est";
+}
+function currentTypeShort(idx){ return currentType(idx)==="Actual" ? "A" : "Est"; }
+
+/* user confirmed: header still Var (A-P) for all tabs; for Cost use P-current as value */
+function varHeaderText(){ return "Var (A-P)"; }
+function varValue(plan, current){
+  return isCostTab() ? (isNum(plan)&&isNum(current)? (plan-current) : null) : (isNum(plan)&&isNum(current)? (current-plan) : null);
+}
+function varPct(plan, v){
+  if(!isNum(plan) || !isNum(v) || plan === 0) return null;
+  return v / Math.abs(plan) * 100;
+}
+
+/* impact logic */
+function isCostTab(){ return state.tab === "Cost"; }
+
+/* =========================
+   Canvas charts
+========================= */
+function createCanvas(container){
+  const c = document.createElement("canvas");
+  container.innerHTML = "";
+  container.appendChild(c);
+  return c;
+}
+function getCanvasSize(canvas){
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(320, Math.floor(rect.width));
+  const h = Math.max(200, Math.floor(rect.height));
+  canvas.width = Math.floor(w * dpr);
+  canvas.height = Math.floor(h * dpr);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return { w, h, ctx };
+}
+function roundRect(ctx, x, y, w, h, r){
+  const rr = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+rr, y);
+  ctx.arcTo(x+w, y, x+w, y+h, rr);
+  ctx.arcTo(x+w, y+h, x, y+h, rr);
+  ctx.arcTo(x, y+h, x, y, rr);
+  ctx.arcTo(x, y, x+w, y, rr);
+  ctx.closePath();
+}
+
+function drawLineChart(canvas, series, opts){
+  const { w, h, ctx } = getCanvasSize(canvas);
+  const pad = { l:52, r:16, t:16, b:34 };
+  const plotW = w - pad.l - pad.r;
+  const plotH = h - pad.t - pad.b;
+
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = "#ffffff";
+  roundRect(ctx, 0,0,w,h, 12); ctx.fill();
+
+  // range from visible months
+  const all = [];
+  for(const s of series){
+    for(let i=1;i<=12;i++){
+      const v = safeNum(s.data[i]);
+      if(v !== null) all.push(v);
+    }
+  }
+  const minV = (all.length ? Math.min(...all) : 0);
+  const maxV = (all.length ? Math.max(...all) : 1);
+  const span = (maxV - minV) || 1;
+  const lo = minV - span*0.08;
+  const hi = maxV + span*0.08;
+
+  // x,y mapping
+  const xOf = (i) => pad.l + plotW * (i-1) / 11;
+  const yOf = (v) => pad.t + (hi - v) / (hi-lo) * plotH;
+
+  // y grid
+  const yTicks = 5;
+  ctx.strokeStyle = CHART.grid;
+  ctx.lineWidth = 1;
+  for(let t=0;t<=yTicks;t++){
+    const y = pad.t + (plotH * t / yTicks);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + plotW, y); ctx.stroke();
+    const val = hi - (hi-lo)*t/yTicks;
+    ctx.fillStyle = CHART.axis;
+    ctx.font = "11px " + getComputedStyle(document.body).fontFamily;
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.fillText(fmtNum(val, opts.decimals), pad.l - 8, y);
+  }
+
+  // x labels
+  ctx.fillStyle = CHART.axis;
+  ctx.font = "11px " + getComputedStyle(document.body).fontFamily;
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for(let i=1;i<=12;i++){
+    const x = xOf(i);
+    if (i === 1 || i === 12 || i % 2 === 0){
+      ctx.fillText(DATA.meta.months[i], x, pad.t + plotH + 10);
+    }
+  }
+
+  // draw series
+  for(const s of series){
+    ctx.lineWidth = s.dashed ? 2.0 : 2.4;
+    ctx.strokeStyle = s.color;
+    ctx.setLineDash(s.dashed ? [6,4] : []);
+    ctx.beginPath();
+    let started = false;
+    for(let i=1;i<=12;i++){
+      const v = safeNum(s.data[i]);
+      if(v === null) continue;
+      const x = xOf(i), y = yOf(v);
+      if(!started){ ctx.moveTo(x,y); started = true; } else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // points (for solid only)
+    if(!s.dashed){
+      ctx.fillStyle = s.color;
+      for(let i=1;i<=12;i++){
+        const v = safeNum(s.data[i]);
+        if(v === null) continue;
+        const x = xOf(i), y = yOf(v);
+        ctx.beginPath(); ctx.arc(x,y,3.0,0,Math.PI*2); ctx.fill();
+      }
+    }
+  }
+
+  // === AUTO dashed bridge from Feb -> Mar (Actual -> Est) ===
+  try{
+    const actualSeries = series.find(s => (s.name || "").toLowerCase() === "actual");
+    const estSeries    = series.find(s => (s.name || "").toLowerCase() === "est");
+    const fromMonth = ACTUAL_END_MONTH_IDX;       // Feb (2)
+    const toMonth   = ACTUAL_END_MONTH_IDX + 1;   // Mar (3)
+    if(actualSeries && estSeries){
+      const v1 = safeNum(actualSeries.data?.[fromMonth]);
+      const v2 = safeNum(estSeries.data?.[toMonth]);
+      if(v1 !== null && v2 !== null){
+        ctx.save();
+        ctx.strokeStyle = estSeries.color || CHART.est;
+        ctx.lineWidth = 2.0;
+        ctx.setLineDash([6,4]);
+        ctx.beginPath();
+        ctx.moveTo(xOf(fromMonth), yOf(v1));
+        ctx.lineTo(xOf(toMonth), yOf(v2));
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }catch(e){}
+
+  // legend
+  let lx = pad.l, ly = 10;
+  ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  ctx.font = "12px " + getComputedStyle(document.body).fontFamily;
+  for(const s of series){
+    ctx.fillStyle = s.color;
+    ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = CHART.text;
+    ctx.fillText(" " + s.name, lx + 10, ly);
+    lx += ctx.measureText("  " + s.name + "   ").width + 26;
+  }
+}
+
+function drawBarChart(canvas, items, opts){
+  const { w, h, ctx } = getCanvasSize(canvas);
+  const pad = { l:52, r:16, t:16, b:58 };
+  const plotW = w - pad.l - pad.r;
+  const plotH = h - pad.t - pad.b;
+
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = "#ffffff";
+  roundRect(ctx, 0,0,w,h, 12); ctx.fill();
+
+  const vals = items.map(x => safeNum(x.value)).filter(v => v !== null);
+  const maxAbs = Math.max(1, ...vals.map(v => Math.abs(v)));
+  const hi = maxAbs * 1.15;
+  const y0 = pad.t + plotH/2;
+
+  ctx.fillStyle = CHART.axis;
+  ctx.font = "11px " + getComputedStyle(document.body).fontFamily;
+  ctx.textAlign = "right"; ctx.textBaseline = "middle";
+
+  for(const t of [-hi, -hi/2, 0, hi/2, hi]){
+    const y = y0 - (t/hi) * (plotH/2);
+    ctx.strokeStyle = CHART.grid;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + plotW, y); ctx.stroke();
+    ctx.fillText(fmtNum(t, opts.decimals), pad.l - 8, y);
+  }
+
+  ctx.strokeStyle = "rgba(100,116,139,.55)";
+  ctx.beginPath(); ctx.moveTo(pad.l, y0); ctx.lineTo(pad.l + plotW, y0); ctx.stroke();
+
+  const n = items.length;
+  const gap = 10;
+  const barW = Math.max(16, Math.min(60, (plotW - gap*(n-1)) / n));
+  const totalW = n*barW + gap*(n-1);
+  let xStart = pad.l + (plotW - totalW)/2;
+
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  ctx.font = "11px " + getComputedStyle(document.body).fontFamily;
+
+  items.forEach((it, i) => {
+    const v = safeNum(it.value);
+    const x = xStart + i*(barW+gap);
+    const barH = (v === null) ? 0 : Math.abs(v) / hi * (plotH/2);
+    const y = (v === null) ? y0 : (v >= 0 ? y0 - barH : y0);
+    const color = (v === null) ? "rgba(100,116,139,.18)" : (v >= 0 ? "rgba(22,163,74,.78)" : "rgba(220,38,38,.78)");
+
+    ctx.fillStyle = color;
+    roundRect(ctx, x, y, barW, barH, 8);
+    ctx.fill();
+
+    ctx.fillStyle = CHART.axis;
+    const label = it.name.length > 10 ? it.name.slice(0,10) + "…" : it.name;
+    ctx.fillText(label, x + barW/2, pad.t + plotH + 10);
+
+    ctx.fillStyle = CHART.text;
+    ctx.textBaseline = (v >= 0 ? "bottom" : "top");
+    const vy = (v >= 0 ? y - 6 : y + barH + 6);
+    ctx.fillText(fmtNum(v, opts.decimals), x + barW/2, vy);
+    ctx.textBaseline = "top";
+  });
+
+  ctx.fillStyle = CHART.text;
+  ctx.font = "12px " + getComputedStyle(document.body).fontFamily;
+  ctx.textAlign = "left"; ctx.textBaseline = "top";
+  ctx.fillText(opts.title || "Impact/Variance", 12, 10);
+}
+
+/* UI state */
+const state = { tab:"Executive", monthIdx:0, view:"monthly", decimals:"auto" };
+const TAB_META = [
+  { key:"Executive", label:"🧭 Executive" },
+  { key:"Volume", label:"📦 Volume" },
+  { key:"Price", label:"💲 Price" },
+  { key:"Cost", label:"🚚 Cost" },
+  { key:"Initiatives", label:"🎯 Initiatives" }
+];
+
+/* Notes */
+function notesKeyBase(){ return `vaDash.notes.${DATA.meta.year}.${state.tab}.${state.monthIdx}`; }
+function saveNotes(){
+  const base = notesKeyBase();
+  STORAGE.setItem(base + ".owner", document.getElementById("ownerInput").value || "");
+  STORAGE.setItem(base + ".rootCause", document.getElementById("rootCause").value || "");
+  STORAGE.setItem(base + ".nextAction", document.getElementById("nextAction").value || "");
+}
+function loadNotes(){
+  const base = notesKeyBase();
+  document.getElementById("ownerInput").value = STORAGE.getItem(base + ".owner") || "";
+  document.getElementById("rootCause").value  = STORAGE.getItem(base + ".rootCause") || "";
+  document.getElementById("nextAction").value = STORAGE.getItem(base + ".nextAction") || "";
+}
+function exportNotes(){
+  const prefix = `vaDash.notes.${DATA.meta.year}.`;
+  const out = {};
+  for(let i=0;i<STORAGE.length;i++){
+    const k = STORAGE.key(i);
+    if(k && k.startsWith(prefix)) out[k] = STORAGE.getItem(k);
+  }
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type:"application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `VA_Dashboard_Notes_${DATA.meta.year}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function resetNotes(){
+  if(!confirm("ยืนยันลบ Notes ทั้งหมดของปีนี้ (ในเครื่องนี้)?")) return;
+  const prefix = `vaDash.notes.${DATA.meta.year}.`;
+  const del = [];
+  for(let i=0;i<STORAGE.length;i++){
+    const k = STORAGE.key(i);
+    if(k && k.startsWith(prefix)) del.push(k);
+  }
+  del.forEach(k => STORAGE.removeItem(k));
+  loadNotes();
+}
+
+/* Helpers */
+function shortName(s){
+  return s.replace(/\s*\(.*?\)\s*/g,"")
+    .replace(/Transportation cost /g,"Trans ")
+    .replace(/sales volume/g,"Vol")
+    .replace(/Ex-Price /g,"Ex ")
+    .replace(/Cost /g,"");
+}
+function sectionTitle(title, subtitle){
+  const box = document.createElement("div");
+  box.style.marginBottom = "10px";
+  const h = document.createElement("div");
+  h.style.display = "flex";
+  h.style.alignItems = "baseline";
+  h.style.justifyContent = "space-between";
+  h.style.gap = "10px";
+  const t = document.createElement("div");
+  t.style.fontWeight = "950";
+  t.style.letterSpacing = ".2px";
+  t.style.color = "#0b2a5b";
+  t.textContent = title;
+  const s = document.createElement("div");
+  s.className = "small";
+  s.textContent = subtitle || "";
+  h.appendChild(t); h.appendChild(s);
+  box.appendChild(h);
+  return box;
+}
+function selectedMonthLabel(){
+  const idx = state.monthIdx;
+  return idx === 0 ? "⭐ Est Full (Full‑year estimate)" : `${DATA.meta.months[idx]} (${currentType(idx)})`;
+}
+
+/* KPI card with split */
+function kpiCard(icon, title, unit, plan, rawArr, opts={}){
+  const idx = state.monthIdx;
+  const actual = actualValueAt(rawArr, idx);
+  const est = estValueAt(rawArr, idx);
+  const current = currentValueAt(rawArr, idx);
+
+  const v = varValue(plan, current);
+  const vp = varPct(plan, v);
+
+  const d = document.createElement("div");
+  d.className = "kpi";
+
+  const name = document.createElement("div");
+  name.className = "name";
+  name.innerHTML = `<span>${escapeHtml(icon || "📌")}</span><span>${escapeHtml(title)}</span>`;
+
+  const value = document.createElement("div");
+  value.className = "value";
+  const main = document.createElement("span");
+  main.textContent = fmtNum(current, state.decimals);
+  const unitEl = document.createElement("span");
+  unitEl.className = "unit";
+  unitEl.textContent = unit;
+
+  value.appendChild(main); value.appendChild(unitEl);
+
+  const sub = document.createElement("div");
+  sub.className = "subrow";
+
+  const planP = document.createElement("span");
+  planP.className = "pill";
+  planP.innerHTML = `<span class="dot"></span>Plan: <b>${fmtNum(plan, state.decimals)}</b>`;
+
+  const actualP = document.createElement("span");
+  actualP.className = "pill";
+  actualP.innerHTML = `<span class="dot good"></span>Actual (Jan–Feb): <b>${fmtNum(actual, state.decimals)}</b>`;
+
+  const estP = document.createElement("span");
+  estP.className = "pill";
+  estP.innerHTML = `<span class="dot warn"></span>Est (Mar–Dec): <b>${fmtNum(est, state.decimals)}</b>`;
+
+  let dotClass = "warn";
+  if(isNum(v) && v > 0) dotClass = "good";
+  if(isNum(v) && v < 0) dotClass = "bad";
+
+  const varP = document.createElement("span");
+  varP.className = "pill";
+  varP.innerHTML =
+    `<span class="dot ${dotClass}"></span>${varHeaderText()}: <b>${fmtNum(v, state.decimals)}</b>` +
+    (opts.showPct ? ` <span style="color:var(--muted)">( ${fmtNum(vp, 1)}% )</span>` : "");
+
+  sub.appendChild(planP);
+  sub.appendChild(actualP);
+  sub.appendChild(estP);
+  sub.appendChild(varP);
+
+  d.appendChild(name);
+  d.appendChild(value);
+  d.appendChild(sub);
+  return d;
+}
+
+/* Table */
+function renderSelectedMonthTable(rows, options){
+  const { costMode } = options || {};
+
+  const wrap = document.createElement("div");
+  const head = document.createElement("div");
+  head.className = "table-title";
+  head.innerHTML = `<div>Summary (Selected month)</div><div class="small">${escapeHtml(selectedMonthLabel())}</div>`;
+  wrap.appendChild(head);
+
+  const table = document.createElement("table");
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>Unit</th>
+        <th>Plan</th>
+        <th>Actual</th>
+        <th>Est</th>
+        <th>${escapeHtml(varHeaderText())}</th>
+        <th>%</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
+  const tbody = table.querySelector("tbody");
+
+  rows.forEach(r => {
+    const plan = r.plan;
+    const actual = r.actual;
+    const est = r.est;
+    const current = r.current;
+
+    const v = costMode ? (isNum(plan)&&isNum(current) ? (plan-current) : null)
+                       : (isNum(plan)&&isNum(current) ? (current-plan) : null);
+    const vp = varPct(plan, v);
+    const color = isNum(v) ? (v >= 0 ? "var(--good)" : "var(--bad)") : "var(--muted)";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(r.metric)}</td>
+      <td style="text-align:left; color:var(--muted)">${escapeHtml(r.unit)}</td>
+      <td>${fmtNum(plan, state.decimals)}</td>
+      <td>${fmtNum(actual, state.decimals)}</td>
+      <td>${fmtNum(est, state.decimals)}</td>
+      <td style="color:${color}; font-weight:950">${fmtNum(v, state.decimals)}</td>
+      <td style="color:${color}">${fmtNum(vp, 1)}${isNum(vp) ? "%" : ""}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  wrap.appendChild(table);
+  return wrap;
+}
+
+/* Charts pipeline */
+const pendingCharts = [];
+function chartBlock(title, specFn){
+  const block = document.createElement("div");
+  block.className = "chart";
+  block.style.position = "relative";
+
+  const top = document.createElement("div");
+  top.className = "small";
+  top.style.marginBottom = "8px";
+  top.innerHTML = `<b style="color:#0b2a5b">${escapeHtml(title)}</b>`;
+  block.appendChild(top);
+
+  const inner = document.createElement("div");
+  inner.style.height = "220px";
+  inner.style.marginTop = "6px";
+  inner.style.borderRadius = "12px";
+  inner.style.overflow = "hidden";
+  block.appendChild(inner);
+
+  pendingCharts.push({ inner, specFn });
+  return block;
+}
+function drawPendingCharts(){
+  while(pendingCharts.length){
+    const { inner, specFn } = pendingCharts.shift();
+    const spec = specFn();
+    const canvas = createCanvas(inner);
+    if(spec.type === "line") drawLineChart(canvas, spec.series, { decimals: state.decimals });
+    if(spec.type === "bar")  drawBarChart(canvas, spec.items, { decimals: state.decimals, title: spec.title });
+  }
+}
+
+/* Render */
+function render(){
+  const root = document.getElementById("content");
+  root.innerHTML = "";
+
+  if(state.tab === "Executive") root.appendChild(renderExecutive());
+  if(state.tab === "Volume") root.appendChild(renderGroup(DATA.volume, "📦 Commercial — Sales Volume"));
+  if(state.tab === "Price") root.appendChild(renderGroup(DATA.price, "💲 Commercial — Ex-Price / Margin"));
+  if(state.tab === "Cost") root.appendChild(renderGroup(DATA.cost, "🚚 Cost / Supply Chain"));
+  if(state.tab === "Initiatives") root.appendChild(renderInitiatives());
+
+  drawPendingCharts();
+}
+
+function renderExecutive(){
+  const wrap = document.createElement("div");
+  const idx = state.monthIdx;
+
+  const coi = DATA.executive.coi;
+  const pr  = DATA.executive.profit;
+  const vr  = DATA.executive.vr;
+
+  const cards = document.createElement("div");
+  cards.className = "kpi-grid";
+  cards.appendChild(kpiCard("🧮","Overall COI", coi.unit, coi.plan[idx], coi.actual, {showPct:true}));
+  cards.appendChild(kpiCard("💰","Profit", pr.unit, pr.plan[idx], pr.actual, {showPct:true}));
+  cards.appendChild(kpiCard("🎯","VR from VA", vr.unit, vr.plan[idx], vr.actual, {showPct:false}));
+  wrap.appendChild(cards);
+
+  const grid = document.createElement("div");
+  grid.className = "grid-2";
+  grid.style.marginTop = "12px";
+
+  grid.appendChild(chartBlock("Overall COI — Trend", () => ({
+    type:"line",
+    series: [
+      { name:"Plan",   data: coi.plan, color: CHART.plan },
+      { name:"Actual", data: buildActualSeries(coi.actual), color: CHART.actual },
+      { name:"Est",    data: buildEstSeries(coi.actual), color: CHART.est, dashed:true }
+    ]
+  })));
+
+  grid.appendChild(chartBlock("Profit — Trend", () => ({
+    type:"line",
+    series: [
+      { name:"Plan",   data: pr.plan, color: CHART.plan },
+      { name:"Actual", data: buildActualSeries(pr.actual), color: CHART.actual },
+      { name:"Est",    data: buildEstSeries(pr.actual), color: CHART.est, dashed:true }
+    ]
+  })));
+
+  wrap.appendChild(grid);
+
+  // Selected-month table (Executive: normal current-plan)
+  const rows = [
+    {
+      metric:"Overall COI",
+      unit:coi.unit,
+      plan:coi.plan[idx],
+      actual: actualValueAt(coi.actual, idx),
+      est: estValueAt(coi.actual, idx),
+      current: currentValueAt(coi.actual, idx)
+    },
+    {
+      metric:"Profit",
+      unit:pr.unit,
+      plan:pr.plan[idx],
+      actual: actualValueAt(pr.actual, idx),
+      est: estValueAt(pr.actual, idx),
+      current: currentValueAt(pr.actual, idx)
+    },
+    {
+      metric:"VR from VA",
+      unit:vr.unit,
+      plan:vr.plan[idx],
+      actual: actualValueAt(vr.actual, idx),
+      est: estValueAt(vr.actual, idx),
+      current: currentValueAt(vr.actual, idx)
+    }
+  ];
+  wrap.appendChild(renderSelectedMonthTable(rows, { costMode:false }));
+
+  return wrap;
+}
+
+function renderGroup(groupObj, title){
+  const wrap = document.createElement("div");
+  const keys = Object.keys(groupObj);
+  const idx = state.monthIdx;
+
+  const subtitle = (idx === 0)
+    ? "⭐ Est Full (Full‑year estimate)"
+    : `Selected month: ${DATA.meta.months[idx]} (${currentType(idx)})`;
+
+  wrap.appendChild(sectionTitle(title, subtitle));
+
+  // KPI cards (top 3)
+  const cards = document.createElement("div");
+  cards.className = "kpi-grid";
+  for(let i=0;i<Math.min(3, keys.length);i++){
+    const k = keys[i];
+    const item = groupObj[k];
+    const icon = (state.tab === "Volume") ? "📦" : (state.tab === "Price") ? "🏷️" : "🧾";
+    cards.appendChild(kpiCard(icon, item.label, item.unit, item.plan[idx], item.actual, {showPct:true}));
+  }
+  wrap.appendChild(cards);
+
+  // selector
+  const selRow = document.createElement("div");
+  selRow.style.display = "flex";
+  selRow.style.gap = "10px";
+  selRow.style.flexWrap = "wrap";
+  selRow.style.alignItems = "center";
+  selRow.style.marginTop = "12px";
+
+  const metricSel = document.createElement("select");
+  metricSel.style.minWidth = "340px";
+  keys.forEach(k => {
+    const opt = document.createElement("option");
+    opt.value = k;
+    opt.textContent = groupObj[k].label;
+    metricSel.appendChild(opt);
+  });
+
+  const memoryKey = `vaDash.metricSel.${state.tab}`;
+  metricSel.value = STORAGE.getItem(memoryKey) || keys[0];
+  metricSel.addEventListener("change", () => { STORAGE.setItem(memoryKey, metricSel.value); render(); });
+
+  const hint = document.createElement("div");
+  hint.className = "small";
+  hint.textContent = (state.tab === "Cost")
+    ? "Cost: Var header stays Var(A-P), but value uses Impact = Plan − Current (negative = overspend)."
+    : "Trend: Plan + Actual (Jan–Feb) + Est (Mar–Dec, dashed).";
+
+  selRow.appendChild(metricSel);
+  selRow.appendChild(hint);
+  wrap.appendChild(selRow);
+
+  const chosen = groupObj[metricSel.value];
+
+  const grid = document.createElement("div");
+  grid.className = "grid-2";
+  grid.style.marginTop = "12px";
+
+  grid.appendChild(chartBlock(`${chosen.label} — Trend`, () => ({
+    type:"line",
+    series: [
+      { name:"Plan",   data: chosen.plan, color: CHART.plan },
+      { name:"Actual", data: buildActualSeries(chosen.actual), color: CHART.actual },
+      { name:"Est",    data: buildEstSeries(chosen.actual), color: CHART.est, dashed:true }
+    ]
+  })));
+
+  // bar chart: compute per KPI using cost rule if cost tab, else normal
+  const barItems = keys.map(k => {
+    const it = groupObj[k];
+    const cur = currentValueAt(it.actual, idx);
+    const v = varValue(it.plan[idx], cur);
+    return { name: shortName(it.label), value: v };
+  }).slice(0, 8);
+
+  grid.appendChild(chartBlock(`${varHeaderText()} by KPI — Selected`, () => ({
+    type:"bar",
+    items: barItems,
+    title: varHeaderText()
+  })));
+
+  wrap.appendChild(grid);
+
+  // Selected-month table (all KPIs in group)
+  const rows = keys.map(k => {
+    const it = groupObj[k];
+    return {
+      metric: it.label,
+      unit: it.unit,
+      plan: it.plan[idx],
+      actual: actualValueAt(it.actual, idx),
+      est: estValueAt(it.actual, idx),
+      current: currentValueAt(it.actual, idx)
+    };
+  });
+  wrap.appendChild(renderSelectedMonthTable(rows, { costMode: (state.tab === "Cost") }));
+
+  return wrap;
+}
+
+function renderInitiatives(){
+  const wrap = document.createElement("div");
+  const idx = state.monthIdx;
+
+  wrap.appendChild(sectionTitle("🎯 VA Initiatives", idx === 0 ? "⭐ Est Full (default)" : `Selected month: ${DATA.meta.months[idx]}`));
+
+  const info = document.createElement("div");
+  info.className = "small";
+  info.textContent = "กรอกความคืบหน้า initiative ต่อเดือน (เก็บในเครื่อง)";
+  wrap.appendChild(info);
+
+  const table = document.createElement("table");
+  table.style.marginTop = "10px";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th style="width:46px">#</th>
+        <th>Initiative</th>
+        <th>PIC</th>
+        <th>Target (MB)</th>
+        <th>Actual MB (${escapeHtml(selectedMonthLabel())})</th>
+        <th>Comment (${escapeHtml(selectedMonthLabel())})</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
+  const tbody = table.querySelector("tbody");
+
+  const keyBase = `vaDash.init.${DATA.meta.year}.${idx}`;
+  DATA.initiatives.forEach(it => {
+    const kImpact = `${keyBase}.${it.no}.impact`;
+    const kCmt = `${keyBase}.${it.no}.cmt`;
+
+    const impactVal = STORAGE.getItem(kImpact) || "";
+    const cmtVal = STORAGE.getItem(kCmt) || "";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${it.no}</td>
+      <td>
+        <div style="font-weight:950; color:#0b2a5b">${escapeHtml(it.name)}</div>
+        <div class="small">${escapeHtml(it.note || "")}</div>
+      </td>
+      <td>${escapeHtml(it.pic || "")}</td>
+      <td>${fmtNum(it.targetMB, 0)}</td>
+      <td style="min-width:160px">
+        <input data-k="${escapeHtml(kImpact)}" type="text" value="${escapeHtml(impactVal)}" placeholder="เช่น 5.0" style="width:100%"/>
+      </td>
+      <td style="min-width:320px">
+        <input data-k="${escapeHtml(kCmt)}" type="text" value="${escapeHtml(cmtVal)}" placeholder="สรุป/ความเสี่ยง/next step" style="width:100%"/>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // wire inputs
+  setTimeout(() => {
+    document.querySelectorAll('input[data-k]').forEach(inp => {
+      inp.addEventListener('input', () => STORAGE.setItem(inp.getAttribute('data-k'), inp.value));
+    });
+  }, 0);
+
+  wrap.appendChild(table);
+  return wrap;
+}
+
+/* UI init */
+function updateMonthBadge(){
+  const idx = state.monthIdx;
+  const label = (idx === 0) ? "⭐ Est Full (Full‑year estimate)" : `${DATA.meta.months[idx]} (${currentType(idx)})`;
+
+  const mb = document.getElementById("monthBadge");
+  mb.textContent = `📅 Month: ${label}`;
+  mb.classList.toggle("estfull", idx === 0);
+
+  const heroText = document.getElementById("heroMonthText");
+  heroText.textContent = (idx === 0) ? " (เปิดมาหน้านี้)" : ` → Now: ${label}`;
+}
+
+function initUI(){
+  // month
+  const monthSel = document.getElementById("monthSel");
+  DATA.meta.months.forEach((m, idx) => {
+    const opt = document.createElement("option");
+    opt.value = String(idx);
+    opt.textContent = (idx === 0 ? "⭐ Est Full (Full-year estimate)" : m);
+    monthSel.appendChild(opt);
+  });
+  monthSel.value = String(state.monthIdx);
+  monthSel.addEventListener("change", () => {
+    state.monthIdx = Number(monthSel.value);
+    updateMonthBadge();
+    render();
+    loadNotes();
+  });
+
+  // view
+  const viewSel = document.getElementById("viewSel");
+  viewSel.value = state.view;
+  viewSel.addEventListener("change", () => { state.view = viewSel.value; render(); });
+
+  // format
+  const formatSel = document.getElementById("formatSel");
+  formatSel.value = state.decimals;
+  formatSel.addEventListener("change", () => { state.decimals = formatSel.value; render(); });
+
+  // tabs
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+  TAB_META.forEach(t => {
+    const el = document.createElement("div");
+    el.className = "tab" + (t.key === state.tab ? " active" : "");
+    el.textContent = t.label;
+    el.addEventListener("click", () => {
+      state.tab = t.key;
+      document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+      el.classList.add("active");
+      updateMonthBadge();
+      render();
+      loadNotes();
+    });
+    tabs.appendChild(el);
+  });
+
+  // notes buttons
+  document.getElementById("btnSaveNotes").addEventListener("click", saveNotes);
+  document.getElementById("btnLoadNotes").addEventListener("click", loadNotes);
+  document.getElementById("btnExportNotes").addEventListener("click", exportNotes);
+  document.getElementById("btnResetNotes").addEventListener("click", resetNotes);
+
+  updateMonthBadge();
+  loadNotes();
+}
+
+/* Debounced resize */
+function debounce(fn, wait){
+  let t=null;
+  return (...args)=>{ if(t) clearTimeout(t); t=setTimeout(()=>fn(...args), wait); };
+}
+window.addEventListener("resize", debounce(() => render(), 200));
+
+/* Boot */
+(function(){
+  initUI();
+  render();
+})();
+</script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
