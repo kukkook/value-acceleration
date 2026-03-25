@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import Image from "next/image";
 import {
   ChartBarSquareIcon,
   CubeIcon,
@@ -8,6 +9,7 @@ import {
   TruckIcon,
   TrophyIcon
 } from "@heroicons/react/24/solid";
+import logoTmma from "@/src/logo_tmma.png";
 import { ACTUAL_END_MONTH_IDX, DASHBOARD_META, TAB_META, type DashboardData, type GroupMetrics, type TabIconKey, type TabKey } from "@/lib/dashboard-data";
 import {
   actualValueAt,
@@ -71,12 +73,16 @@ function ModernDropdown({
   label,
   value,
   options,
-  onChange
+  onChange,
+  minWidthClass = "min-w-[220px]",
+  triggerClassName = ""
 }: {
   label: string;
   value: string;
   options: DropdownOption[];
   onChange: (value: string) => void;
+  minWidthClass?: string;
+  triggerClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -95,12 +101,12 @@ function ModernDropdown({
 
   return (
     <div ref={rootRef} className="relative">
-      <div className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 p-1.5 text-xs font-bold text-white shadow-lg backdrop-blur-sm">
-        <span className="px-2 text-[11px] font-black uppercase tracking-[0.16em] text-white/80">{label}</span>
+      <div className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 p-1.5 text-sm font-bold text-white shadow-lg backdrop-blur-sm">
+        <span className="px-2 text-xs font-black uppercase tracking-[0.16em] text-white/80">{label}</span>
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
-          className="flex min-w-[220px] items-center justify-between rounded-xl bg-white px-3 py-2 text-left text-sm font-semibold text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition hover:bg-slate-50"
+          className={`flex items-center justify-between rounded-xl bg-white px-4 py-2.5 text-left text-base font-semibold text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition hover:bg-slate-50 ${minWidthClass} ${triggerClassName}`}
         >
           <span className="truncate">{selected.label}</span>
           <svg className={`h-4 w-4 text-slate-500 transition ${open ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
@@ -110,7 +116,7 @@ function ModernDropdown({
       </div>
 
       {open ? (
-        <div className="absolute right-0 z-30 mt-2 w-full min-w-[240px] overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-1.5 shadow-[0_22px_55px_rgba(15,23,42,0.24)] backdrop-blur-md">
+        <div className={`absolute right-0 z-30 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-1.5 shadow-[0_22px_55px_rgba(15,23,42,0.24)] backdrop-blur-md ${minWidthClass}`}>
           <div className="max-h-72 overflow-y-auto">
             {options.map((option) => {
               const isActive = option.value === value;
@@ -122,7 +128,7 @@ function ModernDropdown({
                     onChange(option.value);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${
+                  className={`flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-base transition ${
                     isActive ? "bg-blue-600 text-white shadow-md" : "text-slate-700 hover:bg-slate-100"
                   }`}
                 >
@@ -202,8 +208,8 @@ function LineChart({ title, decimals, series, months }: LineChartProps & { month
   return (
     <div className="relative rounded-panel border border-slate-200 bg-white p-4 shadow-soft">
       <div className="mb-3 flex flex-wrap items-center gap-4">
-        <p className="text-sm font-black text-brand-800">{title}</p>
-        <div className="flex flex-wrap gap-3 text-xs text-slate-600">
+        <p className="text-base font-black text-brand-800">{title}</p>
+        <div className="flex flex-wrap gap-3 text-sm text-slate-600">
           {series.map((item) => (
             <button
               key={item.name}
@@ -224,7 +230,7 @@ function LineChart({ title, decimals, series, months }: LineChartProps & { month
         {yTicks.map((tick) => (
           <g key={tick.y}>
             <line x1={pad.left} x2={width - pad.right} y1={tick.y} y2={tick.y} stroke="#e2e8f0" strokeWidth="1" />
-            <text x={pad.left - 10} y={tick.y + 4} textAnchor="end" fontSize="11" fill="#64748b">
+            <text x={pad.left - 10} y={tick.y + 4} textAnchor="end" fontSize="12" fill="#64748b">
               {formatNumber(tick.value, decimals)}
             </text>
           </g>
@@ -232,7 +238,7 @@ function LineChart({ title, decimals, series, months }: LineChartProps & { month
         {months.slice(1).map((month, index) => {
           const monthIdx = index + 1;
           return (
-            <text key={month} x={xOf(monthIdx)} y={height - 10} textAnchor="middle" fontSize="11" fill="#64748b">
+            <text key={month} x={xOf(monthIdx)} y={height - 10} textAnchor="middle" fontSize="12" fill="#64748b">
               {month}
             </text>
           );
@@ -324,10 +330,10 @@ function LineChart({ title, decimals, series, months }: LineChartProps & { month
             top: Math.max(70, tooltipPosition.y - 24)
           }}
         >
-          <div className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">{months[tooltipMonth]}</div>
+          <div className="mb-1 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{months[tooltipMonth]}</div>
           <div className="space-y-1.5">
             {tooltipData.map((item) => (
-              <div key={`html-tooltip-${item.name}`} className="flex items-center gap-2 text-sm text-slate-700">
+              <div key={`html-tooltip-${item.name}`} className="flex items-center gap-2 text-base text-slate-700">
                 <span className="h-3.5 w-3.5 rounded-full" style={{ backgroundColor: item.color }} />
                 <span className="font-medium">{item.name}:</span>
                 <span className="font-black text-slate-900">{formatNumber(item.value, decimals)}</span>
@@ -363,7 +369,7 @@ function BarChart({ title, items, decimals }: BarChartProps) {
 
   return (
     <div className="rounded-panel border border-slate-200 bg-white p-4 shadow-soft">
-      <p className="mb-3 text-sm font-black text-brand-800">{title}</p>
+      <p className="mb-3 text-base font-black text-brand-800">{title}</p>
       <svg viewBox={`0 0 ${width} ${height}`} className="h-64 w-full overflow-visible">
         <rect width={width} height={height} rx="14" fill="white" />
         {ticks.map((value) => {
@@ -371,7 +377,7 @@ function BarChart({ title, items, decimals }: BarChartProps) {
           return (
             <g key={value}>
               <line x1={pad.left} x2={width - pad.right} y1={y} y2={y} stroke="#e2e8f0" strokeWidth="1" />
-              <text x={pad.left - 10} y={y + 4} textAnchor="end" fontSize="11" fill="#64748b">
+              <text x={pad.left - 10} y={y + 4} textAnchor="end" fontSize="12" fill="#64748b">
                 {formatNumber(value, decimals)}
               </text>
             </g>
@@ -389,14 +395,14 @@ function BarChart({ title, items, decimals }: BarChartProps) {
           return (
             <g key={item.name}>
               <rect x={x} y={y} width={barWidth} height={barHeight} rx="8" fill={fill} opacity="0.82" />
-              <text x={x + barWidth / 2} y={height - 34} textAnchor="middle" fontSize="11" fill="#64748b">
+              <text x={x + barWidth / 2} y={height - 34} textAnchor="middle" fontSize="12" fill="#64748b">
                 {label}
               </text>
               <text
                 x={x + barWidth / 2}
                 y={isNumber(value) && value >= 0 ? y - 8 : y + barHeight + 14}
                 textAnchor="middle"
-                fontSize="11"
+                fontSize="12"
                 fill="#0f172a"
               >
                 {formatNumber(value, decimals)}
@@ -430,8 +436,8 @@ function StatusPill({
           : "bg-blue-50 text-brand-800 ring-blue-200";
 
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-black ring-1 ${toneClass}`}>
-      <span className="h-2 w-2 rounded-full bg-current opacity-80" />
+    <span className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-black ring-1 ${toneClass}`}>
+      <span className="h-2.5 w-2.5 rounded-full bg-current opacity-80" />
       {label}: {formatNumber(value, decimals)}
     </span>
   );
@@ -468,20 +474,20 @@ function KpiCard({
 
   return (
     <div className="rounded-panel border border-slate-200 bg-white p-4 shadow-soft">
-      <div className="mb-3 flex items-center gap-2 text-xs font-black text-slate-500">
+      <div className="mb-3 flex items-center gap-2 text-base font-black text-slate-500">
         <span className="text-slate-400">{icon}</span>
         <span>{title}</span>
       </div>
       <div className="flex flex-wrap items-end gap-2">
-        <span className="text-3xl font-black tracking-tight text-slate-900">{formatNumber(current, decimals)}</span>
-        <span className="pb-1 text-xs font-black uppercase tracking-wide text-slate-500">{unit}</span>
+        <span className="text-4xl font-black tracking-tight text-slate-900">{formatNumber(current, decimals)}</span>
+        <span className="pb-1 text-sm font-black uppercase tracking-wide text-slate-500">{unit}</span>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <StatusPill label="Plan" value={plan} decimals={decimals} />
         <StatusPill label="Actual" value={actual} tone="good" decimals={decimals} />
         <StatusPill label="Est" value={estimated} tone="warn" decimals={decimals} />
         <span
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-black ring-1 ${
+          className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-black ring-1 ${
             tone === "good"
               ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
               : tone === "bad"
@@ -519,20 +525,20 @@ function DataTable({
   return (
     <div className="mt-4">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-sm font-black text-brand-800">Summary (Selected month)</h3>
-        <p className="text-xs font-medium text-slate-500">{selectedMonthLabel(monthIdx)}</p>
+        <h3 className="text-lg font-black text-brand-800">Summary (Selected month)</h3>
+        <p className="text-sm font-medium text-slate-500">{selectedMonthLabel(monthIdx)}</p>
       </div>
       <div className="scrollbar-thin overflow-x-auto rounded-panel border border-slate-200 bg-white shadow-soft">
-        <table className="min-w-full text-sm">
+        <table className="min-w-full text-base">
           <thead className="bg-slate-50 text-brand-800">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-black">Metric</th>
-              <th className="px-4 py-3 text-left text-xs font-black">Unit</th>
-              <th className="px-4 py-3 text-right text-xs font-black">Plan</th>
-              <th className="px-4 py-3 text-right text-xs font-black">Actual</th>
-              <th className="px-4 py-3 text-right text-xs font-black">Est</th>
-              <th className="px-4 py-3 text-right text-xs font-black">Var (A-P)</th>
-              <th className="px-4 py-3 text-right text-xs font-black">%</th>
+              <th className="px-4 py-3 text-left text-sm font-black">Metric</th>
+              <th className="px-4 py-3 text-left text-sm font-black">Unit</th>
+              <th className="px-4 py-3 text-right text-sm font-black">Plan</th>
+              <th className="px-4 py-3 text-right text-sm font-black">Actual</th>
+              <th className="px-4 py-3 text-right text-sm font-black">Est</th>
+              <th className="px-4 py-3 text-right text-sm font-black">Var (A-P)</th>
+              <th className="px-4 py-3 text-right text-sm font-black">%</th>
             </tr>
           </thead>
           <tbody>
@@ -586,7 +592,14 @@ function GroupSection({
       : tab === "Price"
         ? "Commercial - Ex-Price / Margin"
         : "Cost / Supply Chain";
-  const icon = tab === "Volume" ? "📦" : tab === "Price" ? "💵" : "🚚";
+  const icon =
+    tab === "Volume" ? (
+      <CubeIcon className="size-5" />
+    ) : tab === "Price" ? (
+      <CurrencyDollarIcon className="size-5" />
+    ) : (
+      <TruckIcon className="size-5" />
+    );
 
   const rows = keys.map((key) => {
     const metric = group[key];
@@ -611,8 +624,8 @@ function GroupSection({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-black text-brand-800">{title}</h3>
-        <p className="text-sm text-slate-500">{selectedMonthLabel(monthIdx)}</p>
+        <h3 className="text-2xl font-black text-brand-800">{title}</h3>
+        <p className="text-lg text-slate-500">{selectedMonthLabel(monthIdx)}</p>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -635,21 +648,21 @@ function GroupSection({
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <select
+        <ModernDropdown
+          label="Metric"
           value={selectedKey}
-          onChange={(event) => onMetricChange(event.target.value)}
-          className="min-w-[320px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-blue-400"
-        >
-          {keys.map((key) => (
-            <option key={key} value={key}>
-              {group[key].label}
-            </option>
-          ))}
-        </select>
-        <p className="text-sm text-slate-500">
+          options={keys.map((key) => ({
+            value: key,
+            label: group[key].label
+          }))}
+          onChange={onMetricChange}
+          minWidthClass="min-w-[340px]"
+          triggerClassName="border border-slate-300 shadow-[0_8px_18px_rgba(15,23,42,0.08)]"
+        />
+        <p className="text-base text-slate-500">
           {isCostTab
             ? "Cost keeps the Var (A-P) header, but the value uses Plan - Current so overspend shows in red."
-            : "Trend uses Plan plus Actual for Jan-Feb and dashed Est for Mar-Dec."}
+            : "Trend: Plan + Actual (Jan–Feb) + Est (Mar–Dec, dashed)."}
         </p>
       </div>
 
@@ -784,24 +797,24 @@ function InitiativesSection({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-black text-brand-800">VA Initiatives</h3>
-        <p className="text-sm text-slate-500">{selectedMonthLabel(monthIdx)}</p>
+        <h3 className="text-2xl font-black text-brand-800">VA Initiatives</h3>
+        <p className="text-lg text-slate-500">{selectedMonthLabel(monthIdx)}</p>
       </div>
 
-      <div className="rounded-panel border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-soft">
+      <div className="rounded-panel border border-slate-200 bg-white p-4 text-base text-slate-600 shadow-soft">
         Capture monthly progress, actual impact, and quick comments for each initiative. Values are stored in localStorage so they stay on this browser.
       </div>
 
       <div className="scrollbar-thin overflow-x-auto rounded-panel border border-slate-200 bg-white shadow-soft">
-        <table className="min-w-full text-sm">
+        <table className="min-w-full text-base">
           <thead className="bg-slate-50 text-brand-800">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-black">#</th>
-              <th className="px-4 py-3 text-left text-xs font-black">Initiative</th>
-              <th className="px-4 py-3 text-left text-xs font-black">PIC</th>
-              <th className="px-4 py-3 text-right text-xs font-black">Target (MB)</th>
-              <th className="px-4 py-3 text-left text-xs font-black">Actual MB ({selectedMonthLabel(monthIdx)})</th>
-              <th className="px-4 py-3 text-left text-xs font-black">Comment ({selectedMonthLabel(monthIdx)})</th>
+              <th className="px-4 py-3 text-left text-sm font-black">#</th>
+              <th className="px-4 py-3 text-left text-sm font-black">Initiative</th>
+              <th className="px-4 py-3 text-left text-sm font-black">PIC</th>
+              <th className="px-4 py-3 text-right text-sm font-black">Target (MB)</th>
+              <th className="px-4 py-3 text-left text-sm font-black">Actual MB ({selectedMonthLabel(monthIdx)})</th>
+              <th className="px-4 py-3 text-left text-sm font-black">Comment ({selectedMonthLabel(monthIdx)})</th>
             </tr>
           </thead>
           <tbody>
@@ -810,7 +823,7 @@ function InitiativesSection({
                 <td className="px-4 py-4 font-semibold">{initiative.no}</td>
                 <td className="px-4 py-4">
                   <div className="font-black text-brand-800">{initiative.name}</div>
-                  <div className="mt-1 text-xs text-slate-500">{initiative.note}</div>
+                  <div className="mt-1 text-sm text-slate-500">{initiative.note}</div>
                 </td>
                 <td className="px-4 py-4 text-slate-600">{initiative.pic}</td>
                 <td className="px-4 py-4 text-right font-semibold">{formatNumber(initiative.targetMB, decimals)}</td>
@@ -819,7 +832,7 @@ function InitiativesSection({
                     value={drafts[initiative.no]?.impact ?? ""}
                     onChange={(event) => onDraftChange(initiative.no, "impact", event.target.value)}
                     placeholder="e.g. 5.0"
-                    className="w-full min-w-40 rounded-xl border border-slate-200 px-3 py-2 outline-none transition focus:border-blue-400"
+                    className="w-full min-w-40 rounded-xl border border-slate-200 px-3 py-2.5 text-base outline-none transition focus:border-blue-400"
                   />
                 </td>
                 <td className="px-4 py-4">
@@ -827,7 +840,7 @@ function InitiativesSection({
                     value={drafts[initiative.no]?.comment ?? ""}
                     onChange={(event) => onDraftChange(initiative.no, "comment", event.target.value)}
                     placeholder="Summary, risk, next step"
-                    className="w-full min-w-80 rounded-xl border border-slate-200 px-3 py-2 outline-none transition focus:border-blue-400"
+                    className="w-full min-w-80 rounded-xl border border-slate-200 px-3 py-2.5 text-base outline-none transition focus:border-blue-400"
                   />
                 </td>
               </tr>
@@ -917,41 +930,73 @@ export function Dashboard({ data }: { data: DashboardData }) {
   return (
     <main className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-white/10 bg-gradient-to-b from-brand-700 to-brand-800 shadow-[0_12px_28px_rgba(2,8,23,0.22)] backdrop-blur">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-4 px-4 py-4 lg:px-6">
-          <div className="min-w-[320px] flex-1">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-lg font-black tracking-tight text-white">TMMA Value Acceleration (VA) KPI Dashboard 2026</h1>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-black text-white shadow-lg">
-                <span>Default:</span>
-                <span className="rounded-full border border-amber-300/30 bg-amber-400/20 px-2 py-0.5 text-[11px] uppercase text-amber-50">Est Full</span>
-                <span>{monthIdx === 0 ? "Landing state" : `Now: ${monthBadge}`}</span>
-              </span>
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-4 px-4 py-4 lg:px-6">
+  
+          {/* Row 1: Logo + Header */}
+          <div className="flex items-start gap-4">
+            <Image
+              src={logoTmma}
+              alt="TMMA logo"
+              className="w-auto rounded-xl p-2"
+              style={{ backgroundColor: "transparent", height: 100 }}
+              priority
+            />
+
+            <div className="min-w-0">
+              <h1 className="max-w-[900px] text-[50px] font-black leading-[1.02] tracking-tight text-white">
+                TMMA Value Acceleration (VA) KPI Dashboard 2026
+              </h1>
+
+              
             </div>
-            <p className="mt-2 text-sm leading-6 text-white/75">
-              Source: {data.meta.source} with Actual values for Jan-Feb and estimated values for Mar-Dec. Cost uses
-              Plan - Current so overspend stays negative and clearly visible.
-            </p>
           </div>
 
+          {/* Row 2: Dropdown */}
           <div className="flex flex-wrap items-center justify-end gap-3">
-            <ModernDropdown label="Month" value={String(monthIdx)} options={monthOptions} onChange={(value) => setMonthIdx(Number(value))} />
-            <ModernDropdown label="View" value={view} options={viewOptions} onChange={setView} />
-            <ModernDropdown label="Decimals" value={decimals} options={decimalOptions} onChange={(value) => setDecimals(value as DecimalMode)} />
+            <ModernDropdown
+              label="Month"
+              value={String(monthIdx)}
+              options={monthOptions}
+              onChange={(value) => setMonthIdx(Number(value))}
+            />
+            <ModernDropdown
+              label="View"
+              value={view}
+              options={viewOptions}
+              onChange={setView}
+            />
+            <ModernDropdown
+              label="Decimals"
+              value={decimals}
+              options={decimalOptions}
+              onChange={(value) => setDecimals(value as DecimalMode)}
+            />
           </div>
+
         </div>
       </header>
 
       <div className="mx-auto max-w-[1400px] px-4 py-4 lg:px-6 lg:py-6">
         <section className="overflow-hidden rounded-panel border border-blue-100 bg-white shadow-panel">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white px-4 py-3">
-            <h2 className="text-sm font-black text-brand-800">Dashboard</h2>
-            <div className="flex flex-wrap gap-2">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-slate-100 px-3 py-1.5 text-sm font-black text-slate-700 shadow-sm">
+                  <span className="text-slate-600">Default:</span>
+                  <span className="rounded-full border border-amber-300/60 bg-amber-100 px-2.5 py-1 text-xs uppercase text-amber-800">
+                    Est Full
+                  </span>
+                  <span className="text-brand-800">
+                    {monthIdx === 0 ? "Landing state" : `Now: ${monthBadge}`}
+                  </span>
+                </span>
+            </div>
+            <div className="ml-auto flex flex-wrap justify-end gap-2">
               {TAB_META.map((item) => (
                 <button
                   key={item.key}
                   type="button"
                   onClick={() => setTab(item.key)}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black transition ${
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-black transition ${
                     tab === item.key
                       ? "bg-blue-600 text-white shadow-lg"
                       : "border border-blue-200 bg-blue-50 text-brand-800 hover:bg-blue-100"
