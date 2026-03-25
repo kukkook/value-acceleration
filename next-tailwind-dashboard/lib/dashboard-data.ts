@@ -33,6 +33,7 @@ export type DashboardData = {
 };
 
 export type TabKey = "Executive" | "Volume" | "Price" | "Cost" | "Initiatives";
+export type TabIconKey = "presentation" | "cube" | "currency" | "truck" | "target";
 
 export const DASHBOARD_META = {
   year: 2026,
@@ -40,12 +41,12 @@ export const DASHBOARD_META = {
   source: "template.xlsx"
 } as const;
 
-export const TAB_META: { key: TabKey; label: string; icon: string }[] = [
-  { key: "Executive", label: "Executive", icon: "📊" },
-  { key: "Volume", label: "Volume", icon: "📦" },
-  { key: "Price", label: "Price", icon: "💵" },
-  { key: "Cost", label: "Cost", icon: "🚚" },
-  { key: "Initiatives", label: "Initiatives", icon: "🎯" }
+export const TAB_META: { key: TabKey; label: string; icon: TabIconKey }[] = [
+  { key: "Executive", label: "Executive", icon: "presentation" },
+  { key: "Volume", label: "Volume", icon: "cube" },
+  { key: "Price", label: "Price", icon: "currency" },
+  { key: "Cost", label: "Cost", icon: "truck" },
+  { key: "Initiatives", label: "Initiatives", icon: "target" }
 ];
 
 export const ACTUAL_END_MONTH_IDX = 2;

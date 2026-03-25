@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { ACTUAL_END_MONTH_IDX, DASHBOARD_META, TAB_META, type DashboardData, type GroupMetrics, type TabKey } from "@/lib/dashboard-data";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  ChartBarSquareIcon,
+  CubeIcon,
+  CurrencyDollarIcon,
+  TruckIcon,
+  TrophyIcon
+} from "@heroicons/react/24/solid";
+import { ACTUAL_END_MONTH_IDX, DASHBOARD_META, TAB_META, type DashboardData, type GroupMetrics, type TabIconKey, type TabKey } from "@/lib/dashboard-data";
 import {
   actualValueAt,
   buildActualSeries,
@@ -20,6 +27,10 @@ import {
 
 type DecimalMode = "auto" | "0" | "1" | "2";
 type InitiativeDrafts = Record<number, { impact: string; comment: string }>;
+type DropdownOption = {
+  label: string;
+  value: string;
+};
 
 const chartColors = {
   plan: "#2563eb",
@@ -44,6 +55,87 @@ function initiativeKey(monthIdx: number, no: number, field: "impact" | "comment"
 
 function metricMemoryKey(tab: TabKey) {
   return `vaDash.metricSel.${tab}`;
+}
+
+function TabIcon({ icon, className }: { icon: TabIconKey; className?: string }) {
+  const common = className ?? "h-4 w-4";
+
+  if (icon === "presentation") return <ChartBarSquareIcon className={common} />;
+  if (icon === "cube") return <CubeIcon className={common} />;
+  if (icon === "currency") return <CurrencyDollarIcon className={common} />;
+  if (icon === "truck") return <TruckIcon className={common} />;
+  return <TrophyIcon className={common} />;
+}
+
+function ModernDropdown({
+  label,
+  value,
+  options,
+  onChange
+}: {
+  label: string;
+  value: string;
+  options: DropdownOption[];
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const selected = options.find((option) => option.value === value) ?? options[0];
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <div className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 p-1.5 text-xs font-bold text-white shadow-lg backdrop-blur-sm">
+        <span className="px-2 text-[11px] font-black uppercase tracking-[0.16em] text-white/80">{label}</span>
+        <button
+          type="button"
+          onClick={() => setOpen((current) => !current)}
+          className="flex min-w-[220px] items-center justify-between rounded-xl bg-white px-3 py-2 text-left text-sm font-semibold text-slate-900 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition hover:bg-slate-50"
+        >
+          <span className="truncate">{selected.label}</span>
+          <svg className={`h-4 w-4 text-slate-500 transition ${open ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="m5 7 5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      {open ? (
+        <div className="absolute right-0 z-30 mt-2 w-full min-w-[240px] overflow-hidden rounded-2xl border border-slate-200 bg-white/95 p-1.5 shadow-[0_22px_55px_rgba(15,23,42,0.24)] backdrop-blur-md">
+          <div className="max-h-72 overflow-y-auto">
+            {options.map((option) => {
+              const isActive = option.value === value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(option.value);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${
+                    isActive ? "bg-blue-600 text-white shadow-md" : "text-slate-700 hover:bg-slate-100"
+                  }`}
+                >
+                  <span className="truncate">{option.label}</span>
+                  {isActive ? <span className="text-xs font-black uppercase tracking-[0.16em] text-white/80">Now</span> : null}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 type LineChartProps = {
@@ -356,7 +448,7 @@ function KpiCard({
   isCostTab,
   showPct = true
 }: {
-  icon: string;
+  icon: ReactNode;
   title: string;
   unit: string;
   plan: number | null;
@@ -377,7 +469,7 @@ function KpiCard({
   return (
     <div className="rounded-panel border border-slate-200 bg-white p-4 shadow-soft">
       <div className="mb-3 flex items-center gap-2 text-xs font-black text-slate-500">
-        <span>{icon}</span>
+        <span className="text-slate-400">{icon}</span>
         <span>{title}</span>
       </div>
       <div className="flex flex-wrap items-end gap-2">
@@ -595,7 +687,11 @@ function ExecutiveSection({ data, monthIdx, decimals }: { data: DashboardData; m
     <div className="space-y-4">
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         <KpiCard
-          icon="📈"
+          icon={
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+              <path d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75c1.035 0 1.875-.84 1.875-1.875V4.125c0-1.036-.84-1.875-1.875-1.875h-.75ZM9.75 8.625c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-.75a1.875 1.875 0 0 1-1.875-1.875V8.625ZM3 13.125c0-1.036.84-1.875 1.875-1.875h.75c1.036 0 1.875.84 1.875 1.875v6.75c0 1.035-.84 1.875-1.875 1.875h-.75A1.875 1.875 0 0 1 3 19.875v-6.75Z" />
+            </svg>
+          }
           title={coi.label}
           unit={coi.unit}
           plan={coi.plan[monthIdx]}
@@ -605,7 +701,16 @@ function ExecutiveSection({ data, monthIdx, decimals }: { data: DashboardData; m
           isCostTab={false}
         />
         <KpiCard
-          icon="💰"
+          icon={
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+              <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 0 1-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004ZM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 0 1-.921.42Z" />
+              <path
+                fillRule="evenodd"
+                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 6a.75.75 0 0 0-1.5 0v.816a3.836 3.836 0 0 0-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 0 1-.921-.421l-.879-.66a.75.75 0 0 0-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 0 0 1.5 0v-.81a4.124 4.124 0 0 0 1.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 0 0-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 0 0 .933-1.175l-.415-.33a3.836 3.836 0 0 0-1.719-.755V6Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          }
           title={profit.label}
           unit={profit.unit}
           plan={profit.plan[monthIdx]}
@@ -615,7 +720,15 @@ function ExecutiveSection({ data, monthIdx, decimals }: { data: DashboardData; m
           isCostTab={false}
         />
         <KpiCard
-          icon="🎯"
+          icon={
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+              <path
+                fillRule="evenodd"
+                d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          }
           title={vr.label}
           unit={vr.unit}
           plan={vr.plan[monthIdx]}
@@ -786,6 +899,20 @@ export function Dashboard({ data }: { data: DashboardData }) {
   }
 
   const monthBadge = monthIdx === 0 ? "Est Full (Full-year estimate)" : `${data.meta.months[monthIdx]} (${currentType(monthIdx)})`;
+  const monthOptions = data.meta.months.map((month, index) => ({
+    label: index === 0 ? "Est Full (Full-year estimate)" : month,
+    value: String(index)
+  }));
+  const viewOptions: DropdownOption[] = [
+    { label: "Monthly", value: "monthly" },
+    { label: "Series (table)", value: "series" }
+  ];
+  const decimalOptions: DropdownOption[] = [
+    { label: "Auto", value: "auto" },
+    { label: "1 decimal", value: "1" },
+    { label: "2 decimals", value: "2" },
+    { label: "Whole numbers", value: "0" }
+  ];
 
   return (
     <main className="min-h-screen">
@@ -807,47 +934,9 @@ export function Dashboard({ data }: { data: DashboardData }) {
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-3">
-            <label className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-bold text-white shadow-lg">
-              Month
-              <select
-                value={monthIdx}
-                onChange={(event) => setMonthIdx(Number(event.target.value))}
-                className="rounded-lg border border-white/20 bg-white px-3 py-1.5 text-slate-900 outline-none"
-              >
-                {data.meta.months.map((month, index) => (
-                  <option key={month} value={index}>
-                    {index === 0 ? "Est Full (Full-year estimate)" : month}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-bold text-white shadow-lg">
-              View
-              <select
-                value={view}
-                onChange={(event) => setView(event.target.value)}
-                className="rounded-lg border border-white/20 bg-white px-3 py-1.5 text-slate-900 outline-none"
-              >
-                <option value="monthly">Monthly</option>
-                <option value="series">Series (table)</option>
-              </select>
-            </label>
-
-            <label className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-bold text-white shadow-lg">
-              Decimals
-              <select
-                value={decimals}
-                onChange={(event) => setDecimals(event.target.value as DecimalMode)}
-                className="rounded-lg border border-white/20 bg-white px-3 py-1.5 text-slate-900 outline-none"
-              >
-                <option value="auto">Auto</option>
-                <option value="1">1 decimal</option>
-                <option value="2">2 decimals</option>
-                <option value="0">Whole numbers</option>
-              </select>
-            </label>
-
+            <ModernDropdown label="Month" value={String(monthIdx)} options={monthOptions} onChange={(value) => setMonthIdx(Number(value))} />
+            <ModernDropdown label="View" value={view} options={viewOptions} onChange={setView} />
+            <ModernDropdown label="Decimals" value={decimals} options={decimalOptions} onChange={(value) => setDecimals(value as DecimalMode)} />
           </div>
         </div>
       </header>
@@ -862,13 +951,14 @@ export function Dashboard({ data }: { data: DashboardData }) {
                   key={item.key}
                   type="button"
                   onClick={() => setTab(item.key)}
-                  className={`rounded-full px-4 py-2 text-xs font-black transition ${
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black transition ${
                     tab === item.key
                       ? "bg-blue-600 text-white shadow-lg"
                       : "border border-blue-200 bg-blue-50 text-brand-800 hover:bg-blue-100"
                   }`}
                 >
-                  {item.icon} {item.label}
+                  <TabIcon icon={item.icon} className="h-4 w-4" />
+                  <span>{item.label}</span>
                 </button>
               ))}
             </div>
