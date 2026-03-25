@@ -22,7 +22,8 @@ body {
   background:
     radial-gradient(1100px 520px at 15% -10%, rgba(255, 255, 255, 0.16), transparent 55%),
     radial-gradient(900px 520px at 90% 0%, rgba(37, 99, 235, 0.35), transparent 55%),
-    linear-gradient(180deg, #0e3a7a 0%, #0b2a5b 38%, #f5f8ff 38%, #f5f8ff 100%);
+    linear-gradient(180deg, #0e3a7a 0%, #0b2a5b 45%, #163d78 100%);
+  background-attachment: fixed;
 }
 
 button,
