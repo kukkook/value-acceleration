@@ -2,8 +2,9 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import * as XLSX from "xlsx";
+import JSZip from "jszip";
 import { DASHBOARD_META, DEFAULT_ACTUAL_END_MONTH_IDX, type DashboardData, type SeriesMetric } from "@/lib/dashboard-data";
-import { getInitiativesFromDb } from "@/lib/initiative-inputs";
+import { getInitiativeDrafts, getInitiativesFromDb } from "@/lib/initiative-inputs";
 
 const workbookPath = path.join(process.cwd(), "src", "template.xlsx");
 const monthColumns = ["I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"] as const;
@@ -103,4 +104,37 @@ export async function getDashboardDataFromExcel(): Promise<DashboardData> {
       transport_bma: buildSeries(kpiSheet, 45, 46, "Transportation cost BMA", "USD/T")
     }
   };
+}
+
+export async function buildInitiativeExportFile(monthIdx: number) {
+  const file = await readFile(workbookPath);
+  const zip = await JSZip.loadAsync(file);
+  const sheetPath = "xl/worksheets/sheet2.xml";
+  const sheetFile = zip.file(sheetPath);
+
+  if (!sheetFile) {
+    throw new Error("Required KPI workbook sheet was not found.");
+  }
+
+  let sheetXml = await sheetFile.async("string");
+  const initiatives = await getInitiativesFromDb(DASHBOARD_META.year);
+  const drafts = await getInitiativeDrafts(DASHBOARD_META.year, monthIdx);
+
+  initiatives.forEach((initiative, index) => {
+    const row = 63 + index;
+    const draft = drafts[initiative.no];
+    const impactText = draft?.impact?.trim() ?? "";
+    const impact = impactText === "" ? null : Number(impactText);
+    const cellRef = `H${row}`;
+    const numericValue = Number.isFinite(impact) ? String(impact) : "";
+    const cellPattern = new RegExp(`<c r="${cellRef}"([^/>]*)\\/>|<c r="${cellRef}"([^>]*)>([\\s\\S]*?)<\\/c>`);
+
+    sheetXml = sheetXml.replace(cellPattern, (_match, selfClosingAttrs, openAttrs, _inner) => {
+      const attrs = selfClosingAttrs ?? openAttrs ?? "";
+      return numericValue ? `<c r="${cellRef}"${attrs}><v>${numericValue}</v></c>` : `<c r="${cellRef}"${attrs}/>`;
+    });
+  });
+
+  zip.file(sheetPath, sheetXml);
+  return await zip.generateAsync({ type: "nodebuffer" });
 }

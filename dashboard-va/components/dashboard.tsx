@@ -854,7 +854,8 @@ function InitiativesSection({
   saveState,
   saveMessage,
   onSave,
-  hasUnsavedChanges
+  hasUnsavedChanges,
+  onExport
 }: {
   data: DashboardData;
   monthIdx: number;
@@ -865,6 +866,7 @@ function InitiativesSection({
   saveMessage: string;
   onSave: () => void;
   hasUnsavedChanges: boolean;
+  onExport: () => void;
 }) {
   const actualEndMonthIdx = data.meta.actualEndMonthIdx;
   const messageTone =
@@ -925,6 +927,18 @@ function InitiativesSection({
         </table>
       </div>
       <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={onExport}
+          disabled={saveState === "loading" || saveState === "saving" || hasUnsavedChanges}
+          className={`mr-3 rounded-xl px-5 py-3 text-sm font-black transition ${
+            saveState === "loading" || saveState === "saving" || hasUnsavedChanges
+              ? "cursor-not-allowed bg-slate-200 text-slate-500"
+              : "border border-blue-200 bg-white text-blue-700 shadow-sm hover:bg-blue-50"
+          }`}
+        >
+          Export Excel
+        </button>
         <button
           type="button"
           onClick={onSave}
@@ -1089,6 +1103,10 @@ export function Dashboard({ data }: { data: DashboardData }) {
     }
   }
 
+  function handleInitiativeExport() {
+    window.location.href = `/api/initiative-export?monthIdx=${monthIdx}`;
+  }
+
   const actualEndMonthIdx = data.meta.actualEndMonthIdx;
   const monthBadge =
     monthIdx === 0 ? "Est Full (Full-year estimate)" : `${data.meta.months[monthIdx]} (${currentType(monthIdx, actualEndMonthIdx)})`;
@@ -1206,6 +1224,7 @@ export function Dashboard({ data }: { data: DashboardData }) {
                 saveMessage={initiativeStatusMessage}
                 onSave={handleInitiativeSave}
                 hasUnsavedChanges={hasUnsavedInitiativeChanges}
+                onExport={handleInitiativeExport}
               />
             ) : null}
           </div>
