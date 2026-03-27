@@ -2,7 +2,7 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import * as XLSX from "xlsx";
-import { DASHBOARD_META, type DashboardData, type Initiative, type SeriesMetric } from "@/lib/dashboard-data";
+import { DASHBOARD_META, DEFAULT_ACTUAL_END_MONTH_IDX, type DashboardData, type Initiative, type SeriesMetric } from "@/lib/dashboard-data";
 
 const workbookPath = path.join(process.cwd(), "src", "template.xlsx");
 const monthColumns = ["I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"] as const;
@@ -62,6 +62,16 @@ function readInitiatives(sheet: XLSX.WorkSheet): Initiative[] {
   });
 }
 
+function detectActualEndMonthIdx(sheet: XLSX.WorkSheet) {
+  const merges = sheet["!merges"] ?? [];
+  const actualMerge = merges.find((merge) => merge.s.r === 0 && merge.s.c === 8);
+
+  if (!actualMerge) return DEFAULT_ACTUAL_END_MONTH_IDX;
+
+  const monthCount = actualMerge.e.c - actualMerge.s.c + 1;
+  return Math.max(1, Math.min(12, monthCount));
+}
+
 export async function getDashboardDataFromExcel(): Promise<DashboardData> {
   const workbook = await readWorkbook();
   const kpiSheet = workbook.Sheets.Sheet2;
@@ -71,11 +81,14 @@ export async function getDashboardDataFromExcel(): Promise<DashboardData> {
     throw new Error("Required workbook sheets were not found.");
   }
 
+  const actualEndMonthIdx = detectActualEndMonthIdx(kpiSheet);
+
   return {
     meta: {
       year: DASHBOARD_META.year,
       months: [...DASHBOARD_META.months],
-      source: DASHBOARD_META.source
+      source: DASHBOARD_META.source,
+      actualEndMonthIdx
     },
     initiatives: readInitiatives(initiativeSheet),
     executive: {

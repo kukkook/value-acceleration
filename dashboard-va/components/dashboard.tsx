@@ -10,14 +10,16 @@ import {
   TrophyIcon
 } from "@heroicons/react/24/solid";
 import logoTmma from "@/src/logo_tmma.png";
-import { ACTUAL_END_MONTH_IDX, DASHBOARD_META, TAB_META, type DashboardData, type GroupMetrics, type TabIconKey, type TabKey } from "@/lib/dashboard-data";
+import { DASHBOARD_META, TAB_META, type DashboardData, type GroupMetrics, type TabIconKey, type TabKey } from "@/lib/dashboard-data";
 import {
   actualValueAt,
+  actualRangeLabel,
   buildActualSeries,
   buildEstimatedSeries,
   currentType,
   currentValueAt,
   estimatedValueAt,
+  estimatedRangeLabel,
   formatNumber,
   getGroupByTab,
   isNumber,
@@ -148,9 +150,10 @@ type LineChartProps = {
   title: string;
   decimals: DecimalMode;
   series: { name: string; data: (number | null)[]; color: string; dashed?: boolean }[];
+  actualEndMonthIdx: number;
 };
 
-function LineChart({ title, decimals, series, months }: LineChartProps & { months: string[] }) {
+function LineChart({ title, decimals, series, months, actualEndMonthIdx }: LineChartProps & { months: string[] }) {
   const [hoverMonth, setHoverMonth] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null);
@@ -178,8 +181,8 @@ function LineChart({ title, decimals, series, months }: LineChartProps & { month
 
   const actualSeries = series.find((item) => item.name === "Actual");
   const estimatedSeries = series.find((item) => item.name === "Est");
-  const bridgeActual = actualSeries?.data[ACTUAL_END_MONTH_IDX];
-  const bridgeEstimated = estimatedSeries?.data[ACTUAL_END_MONTH_IDX + 1];
+  const bridgeActual = actualSeries?.data[actualEndMonthIdx];
+  const bridgeEstimated = estimatedSeries?.data[actualEndMonthIdx + 1];
   const tooltipMonth = hoverMonth;
   const tooltipX = tooltipMonth ? xOf(tooltipMonth) : null;
   const tooltipData = tooltipMonth
@@ -286,9 +289,9 @@ function LineChart({ title, decimals, series, months }: LineChartProps & { month
         })}
         {isNumber(bridgeActual) && isNumber(bridgeEstimated) ? (
           <line
-            x1={xOf(ACTUAL_END_MONTH_IDX)}
+            x1={xOf(actualEndMonthIdx)}
             y1={yOf(bridgeActual)}
-            x2={xOf(ACTUAL_END_MONTH_IDX + 1)}
+            x2={xOf(actualEndMonthIdx + 1)}
             y2={yOf(bridgeEstimated)}
             stroke={chartColors.est}
             strokeWidth="2.5"
@@ -352,18 +355,35 @@ type BarChartProps = {
   decimals: DecimalMode;
 };
 
+function compactBarLabel(name: string) {
+  return name
+    .replace("sales volume", "Vol")
+    .replace("Transportation cost", "Trans")
+    .replace("Ex-Price", "Ex")
+    .replace("MTN AVG Cost", "MTN")
+    .replace("Cat & Chem Cost", "Cat&Chem")
+    .replace("PGC MMA", "PGC MMA")
+    .replace("Sheet Ex", "Sheet Ex")
+    .replace("(XF)", "")
+    .replace("(USD/T)", "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function BarChart({ title, items, decimals }: BarChartProps) {
+  const [hoveredItem, setHoveredItem] = useState<{ name: string; value: number | null; x: number; y: number } | null>(null);
   const width = 640;
   const height = 260;
-  const pad = { top: 24, right: 20, bottom: 64, left: 58 };
+  const pad = { top: 24, right: 20, bottom: 96, left: 58 };
   const plotWidth = width - pad.left - pad.right;
   const plotHeight = height - pad.top - pad.bottom;
   const numericValues = items.map((item) => item.value).filter(isNumber);
   const maxAbs = Math.max(1, ...numericValues.map((value) => Math.abs(value)));
   const halfHeight = plotHeight / 2;
   const zeroY = pad.top + halfHeight;
-  const barWidth = Math.min(52, (plotWidth - (items.length - 1) * 10) / Math.max(items.length, 1));
-  const totalWidth = items.length * barWidth + (items.length - 1) * 10;
+  const gap = 25;
+  const barWidth = Math.min(38, (plotWidth - (items.length - 1) * gap) / Math.max(items.length, 1));
+  const totalWidth = items.length * barWidth + (items.length - 1) * gap;
   const startX = pad.left + (plotWidth - totalWidth) / 2;
   const ticks = [-maxAbs, -maxAbs / 2, 0, maxAbs / 2, maxAbs];
 
@@ -384,19 +404,39 @@ function BarChart({ title, items, decimals }: BarChartProps) {
           );
         })}
         {items.map((item, index) => {
-          const x = startX + index * (barWidth + 10);
+          const x = startX + index * (barWidth + gap);
           const value = item.value;
           const heightRatio = isNumber(value) ? Math.abs(value) / maxAbs : 0;
           const barHeight = halfHeight * heightRatio;
           const y = isNumber(value) && value >= 0 ? zeroY - barHeight : zeroY;
           const fill = !isNumber(value) ? "#cbd5e1" : value >= 0 ? "#16a34a" : "#dc2626";
+          const displayLabel = compactBarLabel(item.name);
+          const labelY = height - (index % 2 === 0 ? 34 : 18);
           const label = item.name.length > 11 ? `${item.name.slice(0, 11)}…` : item.name;
 
           return (
             <g key={item.name}>
-              <rect x={x} y={y} width={barWidth} height={barHeight} rx="8" fill={fill} opacity="0.82" />
-              <text x={x + barWidth / 2} y={height - 34} textAnchor="middle" fontSize="12" fill="#64748b">
-                {label}
+              <rect
+                x={x}
+                y={y}
+                width={barWidth}
+                height={barHeight}
+                rx="8"
+                fill={fill}
+                opacity="0.82"
+                className="cursor-pointer transition-opacity hover:opacity-100"
+                onMouseEnter={() =>
+                  setHoveredItem({
+                    name: item.name,
+                    value,
+                    x: x + barWidth / 2,
+                    y: isNumber(value) && value >= 0 ? y : y + barHeight
+                  })
+                }
+                onMouseLeave={() => setHoveredItem(null)}
+              />
+              <text x={x + barWidth / 2} y={labelY} textAnchor="middle" fontSize="10" fill="#64748b">
+                {displayLabel}
               </text>
               <text
                 x={x + barWidth / 2}
@@ -411,6 +451,19 @@ function BarChart({ title, items, decimals }: BarChartProps) {
           );
         })}
       </svg>
+      {hoveredItem ? (
+        <div
+          className="pointer-events-none absolute z-10 min-w-40 rounded-2xl bg-white/95 px-4 py-3 text-sm shadow-[0_14px_32px_rgba(15,23,42,0.14)] ring-1 ring-slate-200 backdrop-blur-sm"
+          style={{
+            left: Math.min(hoveredItem.x + 24, width - 180),
+            top: Math.max(72, hoveredItem.y + 12)
+          }}
+        >
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Selected KPI</div>
+          <div className="mt-1 font-semibold text-slate-700">{hoveredItem.name}</div>
+          <div className="mt-2 text-lg font-black text-slate-900">{formatNumber(hoveredItem.value, decimals)}</div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -452,6 +505,7 @@ function KpiCard({
   monthIdx,
   decimals,
   isCostTab,
+  actualEndMonthIdx,
   showPct = true
 }: {
   icon: ReactNode;
@@ -462,11 +516,12 @@ function KpiCard({
   monthIdx: number;
   decimals: DecimalMode;
   isCostTab: boolean;
+  actualEndMonthIdx: number;
   showPct?: boolean;
 }) {
-  const actual = actualValueAt(rawSeries, monthIdx);
-  const estimated = estimatedValueAt(rawSeries, monthIdx);
-  const current = currentValueAt(rawSeries, monthIdx);
+  const actual = actualValueAt(rawSeries, monthIdx, actualEndMonthIdx);
+  const estimated = estimatedValueAt(rawSeries, monthIdx, actualEndMonthIdx);
+  const current = currentValueAt(rawSeries, monthIdx, actualEndMonthIdx);
   const variance = varianceValue(plan, current, isCostTab);
   const variancePercent = variancePct(plan, variance);
 
@@ -484,8 +539,8 @@ function KpiCard({
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <StatusPill label="Plan" value={plan} decimals={decimals} />
-        <StatusPill label="Actual" value={actual} tone="good" decimals={decimals} />
-        <StatusPill label="Est" value={estimated} tone="warn" decimals={decimals} />
+        <StatusPill label={actualRangeLabel(actualEndMonthIdx)} value={actual} tone="good" decimals={decimals} />
+        <StatusPill label={estimatedRangeLabel(actualEndMonthIdx)} value={estimated} tone="warn" decimals={decimals} />
         <span
           className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-black ring-1 ${
             tone === "good"
@@ -508,7 +563,8 @@ function DataTable({
   rows,
   monthIdx,
   decimals,
-  costMode
+  costMode,
+  actualEndMonthIdx
 }: {
   rows: {
     metric: string;
@@ -521,12 +577,13 @@ function DataTable({
   monthIdx: number;
   decimals: DecimalMode;
   costMode: boolean;
+  actualEndMonthIdx: number;
 }) {
   return (
     <div className="mt-4">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-lg font-black text-brand-800">Summary (Selected month)</h3>
-        <p className="text-sm font-medium text-slate-500">{selectedMonthLabel(monthIdx)}</p>
+        <p className="text-sm font-medium text-slate-500">{selectedMonthLabel(monthIdx, actualEndMonthIdx)}</p>
       </div>
       <div className="scrollbar-thin overflow-x-auto rounded-panel border border-slate-200 bg-white shadow-soft">
         <table className="min-w-full text-base">
@@ -582,10 +639,12 @@ function GroupSection({
   onMetricChange: (value: string) => void;
 }) {
   const group = getGroupByTab(data, tab) as GroupMetrics;
+  const actualEndMonthIdx = data.meta.actualEndMonthIdx;
   const keys = Object.keys(group);
   const selectedKey = keys.includes(metricKey) ? metricKey : keys[0];
   const selectedMetric = group[selectedKey];
   const isCostTab = tab === "Cost";
+  const cardsGridClass = keys.length === 4 ? "xl:grid-cols-4" : keys.length > 4 ? "xl:grid-cols-3" : "xl:grid-cols-3";
   const title =
     tab === "Volume"
       ? "Commercial - Sales Volume"
@@ -607,9 +666,9 @@ function GroupSection({
       metric: metric.label,
       unit: metric.unit,
       plan: metric.plan[monthIdx],
-      actual: actualValueAt(metric.actual, monthIdx),
-      est: estimatedValueAt(metric.actual, monthIdx),
-      current: currentValueAt(metric.actual, monthIdx)
+      actual: actualValueAt(metric.actual, monthIdx, actualEndMonthIdx),
+      est: estimatedValueAt(metric.actual, monthIdx, actualEndMonthIdx),
+      current: currentValueAt(metric.actual, monthIdx, actualEndMonthIdx)
     };
   });
 
@@ -617,7 +676,7 @@ function GroupSection({
     const metric = group[key];
     return {
       name: shortName(metric.label),
-      value: varianceValue(metric.plan[monthIdx], currentValueAt(metric.actual, monthIdx), isCostTab)
+      value: varianceValue(metric.plan[monthIdx], currentValueAt(metric.actual, monthIdx, actualEndMonthIdx), isCostTab)
     };
   });
 
@@ -625,11 +684,11 @@ function GroupSection({
     <div className="space-y-4">
       <div>
         <h3 className="text-2xl font-black text-brand-800">{title}</h3>
-        <p className="text-lg text-slate-500">{selectedMonthLabel(monthIdx)}</p>
+        <p className="text-lg text-slate-500">{selectedMonthLabel(monthIdx, actualEndMonthIdx)}</p>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {keys.slice(0, 3).map((key) => {
+      <div className={`grid gap-3 md:grid-cols-2 ${cardsGridClass}`}>
+        {keys.map((key) => {
           const metric = group[key];
           return (
             <KpiCard
@@ -642,6 +701,7 @@ function GroupSection({
               monthIdx={monthIdx}
               decimals={decimals}
               isCostTab={isCostTab}
+              actualEndMonthIdx={actualEndMonthIdx}
             />
           );
         })}
@@ -662,7 +722,7 @@ function GroupSection({
         <p className="text-base text-slate-500">
           {isCostTab
             ? "Cost keeps the Var (A-P) header, but the value uses Plan - Current so overspend shows in red."
-            : "Trend: Plan + Actual (Jan–Feb) + Est (Mar–Dec, dashed)."}
+            : `Trend: Plan + ${actualRangeLabel(actualEndMonthIdx)} + ${estimatedRangeLabel(actualEndMonthIdx)} (dashed).`}
         </p>
       </div>
 
@@ -671,29 +731,31 @@ function GroupSection({
           title={`${selectedMetric.label} - Trend`}
           decimals={decimals}
           months={data.meta.months}
+          actualEndMonthIdx={actualEndMonthIdx}
           series={[
             { name: "Plan", data: [...selectedMetric.plan], color: chartColors.plan },
-            { name: "Actual", data: buildActualSeries(selectedMetric.actual), color: chartColors.actual },
-            { name: "Est", data: buildEstimatedSeries(selectedMetric.actual), color: chartColors.est, dashed: true }
+            { name: "Actual", data: buildActualSeries(selectedMetric.actual, actualEndMonthIdx), color: chartColors.actual },
+            { name: "Est", data: buildEstimatedSeries(selectedMetric.actual, actualEndMonthIdx), color: chartColors.est, dashed: true }
           ]}
         />
         <BarChart title="Var (A-P) by KPI - Selected" decimals={decimals} items={barItems} />
       </div>
 
-      <DataTable rows={rows} monthIdx={monthIdx} decimals={decimals} costMode={isCostTab} />
+      <DataTable rows={rows} monthIdx={monthIdx} decimals={decimals} costMode={isCostTab} actualEndMonthIdx={actualEndMonthIdx} />
     </div>
   );
 }
 
 function ExecutiveSection({ data, monthIdx, decimals }: { data: DashboardData; monthIdx: number; decimals: DecimalMode }) {
   const { coi, profit, vr } = data.executive;
+  const actualEndMonthIdx = data.meta.actualEndMonthIdx;
   const rows = [coi, profit, vr].map((metric) => ({
     metric: metric.label,
     unit: metric.unit,
     plan: metric.plan[monthIdx],
-    actual: actualValueAt(metric.actual, monthIdx),
-    est: estimatedValueAt(metric.actual, monthIdx),
-    current: currentValueAt(metric.actual, monthIdx)
+    actual: actualValueAt(metric.actual, monthIdx, actualEndMonthIdx),
+    est: estimatedValueAt(metric.actual, monthIdx, actualEndMonthIdx),
+    current: currentValueAt(metric.actual, monthIdx, actualEndMonthIdx)
   }));
 
   return (
@@ -712,6 +774,7 @@ function ExecutiveSection({ data, monthIdx, decimals }: { data: DashboardData; m
           monthIdx={monthIdx}
           decimals={decimals}
           isCostTab={false}
+          actualEndMonthIdx={actualEndMonthIdx}
         />
         <KpiCard
           icon={
@@ -731,6 +794,7 @@ function ExecutiveSection({ data, monthIdx, decimals }: { data: DashboardData; m
           monthIdx={monthIdx}
           decimals={decimals}
           isCostTab={false}
+          actualEndMonthIdx={actualEndMonthIdx}
         />
         <KpiCard
           icon={
@@ -749,6 +813,7 @@ function ExecutiveSection({ data, monthIdx, decimals }: { data: DashboardData; m
           monthIdx={monthIdx}
           decimals={decimals}
           isCostTab={false}
+          actualEndMonthIdx={actualEndMonthIdx}
           showPct={false}
         />
       </div>
@@ -758,25 +823,27 @@ function ExecutiveSection({ data, monthIdx, decimals }: { data: DashboardData; m
           title="Overall COI - Trend"
           decimals={decimals}
           months={data.meta.months}
+          actualEndMonthIdx={actualEndMonthIdx}
           series={[
             { name: "Plan", data: [...coi.plan], color: chartColors.plan },
-            { name: "Actual", data: buildActualSeries(coi.actual), color: chartColors.actual },
-            { name: "Est", data: buildEstimatedSeries(coi.actual), color: chartColors.est, dashed: true }
+            { name: "Actual", data: buildActualSeries(coi.actual, actualEndMonthIdx), color: chartColors.actual },
+            { name: "Est", data: buildEstimatedSeries(coi.actual, actualEndMonthIdx), color: chartColors.est, dashed: true }
           ]}
         />
         <LineChart
           title="Profit - Trend"
           decimals={decimals}
           months={data.meta.months}
+          actualEndMonthIdx={actualEndMonthIdx}
           series={[
             { name: "Plan", data: [...profit.plan], color: chartColors.plan },
-            { name: "Actual", data: buildActualSeries(profit.actual), color: chartColors.actual },
-            { name: "Est", data: buildEstimatedSeries(profit.actual), color: chartColors.est, dashed: true }
+            { name: "Actual", data: buildActualSeries(profit.actual, actualEndMonthIdx), color: chartColors.actual },
+            { name: "Est", data: buildEstimatedSeries(profit.actual, actualEndMonthIdx), color: chartColors.est, dashed: true }
           ]}
         />
       </div>
 
-      <DataTable rows={rows} monthIdx={monthIdx} decimals={decimals} costMode={false} />
+      <DataTable rows={rows} monthIdx={monthIdx} decimals={decimals} costMode={false} actualEndMonthIdx={actualEndMonthIdx} />
     </div>
   );
 }
@@ -794,11 +861,13 @@ function InitiativesSection({
   drafts: InitiativeDrafts;
   onDraftChange: (no: number, field: "impact" | "comment", value: string) => void;
 }) {
+  const actualEndMonthIdx = data.meta.actualEndMonthIdx;
+
   return (
     <div className="space-y-4">
       <div>
         <h3 className="text-2xl font-black text-brand-800">VA Initiatives</h3>
-        <p className="text-lg text-slate-500">{selectedMonthLabel(monthIdx)}</p>
+        <p className="text-lg text-slate-500">{selectedMonthLabel(monthIdx, actualEndMonthIdx)}</p>
       </div>
 
       <div className="rounded-panel border border-slate-200 bg-white p-4 text-base text-slate-600 shadow-soft">
@@ -813,8 +882,8 @@ function InitiativesSection({
               <th className="px-4 py-3 text-left text-sm font-black">Initiative</th>
               <th className="px-4 py-3 text-left text-sm font-black">PIC</th>
               <th className="px-4 py-3 text-right text-sm font-black">Target (MB)</th>
-              <th className="px-4 py-3 text-left text-sm font-black">Actual MB ({selectedMonthLabel(monthIdx)})</th>
-              <th className="px-4 py-3 text-left text-sm font-black">Comment ({selectedMonthLabel(monthIdx)})</th>
+              <th className="px-4 py-3 text-left text-sm font-black">Actual MB ({selectedMonthLabel(monthIdx, actualEndMonthIdx)})</th>
+              <th className="px-4 py-3 text-left text-sm font-black">Comment ({selectedMonthLabel(monthIdx, actualEndMonthIdx)})</th>
             </tr>
           </thead>
           <tbody>
@@ -911,7 +980,9 @@ export function Dashboard({ data }: { data: DashboardData }) {
     }
   }
 
-  const monthBadge = monthIdx === 0 ? "Est Full (Full-year estimate)" : `${data.meta.months[monthIdx]} (${currentType(monthIdx)})`;
+  const actualEndMonthIdx = data.meta.actualEndMonthIdx;
+  const monthBadge =
+    monthIdx === 0 ? "Est Full (Full-year estimate)" : `${data.meta.months[monthIdx]} (${currentType(monthIdx, actualEndMonthIdx)})`;
   const monthOptions = data.meta.months.map((month, index) => ({
     label: index === 0 ? "Est Full (Full-year estimate)" : month,
     value: String(index)
@@ -958,13 +1029,7 @@ export function Dashboard({ data }: { data: DashboardData }) {
               value={String(monthIdx)}
               options={monthOptions}
               onChange={(value) => setMonthIdx(Number(value))}
-            />
-            <ModernDropdown
-              label="View"
-              value={view}
-              options={viewOptions}
-              onChange={setView}
-            />
+            /> 
             <ModernDropdown
               label="Decimals"
               value={decimals}

@@ -1,4 +1,4 @@
-# Next Tailwind Dashboard
+# Dashboard VA
 
 Rebuild of `mockup.html` as a standalone Next.js + Tailwind project.
 

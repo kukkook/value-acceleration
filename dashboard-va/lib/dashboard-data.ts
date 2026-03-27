@@ -20,6 +20,7 @@ export type DashboardData = {
     year: number;
     months: string[];
     source: string;
+    actualEndMonthIdx: number;
   };
   initiatives: Initiative[];
   executive: {
@@ -49,4 +50,4 @@ export const TAB_META: { key: TabKey; label: string; icon: TabIconKey }[] = [
   { key: "Initiatives", label: "Initiatives", icon: "target" }
 ];
 
-export const ACTUAL_END_MONTH_IDX = 2;
+export const DEFAULT_ACTUAL_END_MONTH_IDX = 2;
