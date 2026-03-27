@@ -2,7 +2,8 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import * as XLSX from "xlsx";
-import { DASHBOARD_META, DEFAULT_ACTUAL_END_MONTH_IDX, type DashboardData, type Initiative, type SeriesMetric } from "@/lib/dashboard-data";
+import { DASHBOARD_META, DEFAULT_ACTUAL_END_MONTH_IDX, type DashboardData, type SeriesMetric } from "@/lib/dashboard-data";
+import { getInitiativesFromDb } from "@/lib/initiative-inputs";
 
 const workbookPath = path.join(process.cwd(), "src", "template.xlsx");
 const monthColumns = ["I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"] as const;
@@ -46,22 +47,6 @@ function buildSeries(sheet: XLSX.WorkSheet, planRow: number, actualRow: number, 
   };
 }
 
-function readInitiatives(sheet: XLSX.WorkSheet): Initiative[] {
-  return Array.from({ length: 8 }, (_, index) => {
-    const row = index + 2;
-    const nameCell = cleanText(sheet[`A${row}`]?.v ?? "");
-    const name = nameCell.replace(/^\d+\.\s*/, "");
-
-    return {
-      no: index + 1,
-      name,
-      pic: cleanText(sheet[`B${row}`]?.v ?? ""),
-      note: cleanText(sheet[`C${row}`]?.v ?? ""),
-      targetMB: cellNumber(sheet, `D${row}`)
-    };
-  });
-}
-
 function detectActualEndMonthIdx(sheet: XLSX.WorkSheet) {
   const merges = sheet["!merges"] ?? [];
   const actualMerge = merges.find((merge) => merge.s.r === 0 && merge.s.c === 8);
@@ -75,13 +60,13 @@ function detectActualEndMonthIdx(sheet: XLSX.WorkSheet) {
 export async function getDashboardDataFromExcel(): Promise<DashboardData> {
   const workbook = await readWorkbook();
   const kpiSheet = workbook.Sheets.Sheet2;
-  const initiativeSheet = workbook.Sheets.Sheet1;
 
-  if (!kpiSheet || !initiativeSheet) {
-    throw new Error("Required workbook sheets were not found.");
+  if (!kpiSheet) {
+    throw new Error("Required KPI workbook sheet was not found.");
   }
 
   const actualEndMonthIdx = detectActualEndMonthIdx(kpiSheet);
+  const initiatives = await getInitiativesFromDb(DASHBOARD_META.year);
 
   return {
     meta: {
@@ -90,7 +75,7 @@ export async function getDashboardDataFromExcel(): Promise<DashboardData> {
       source: DASHBOARD_META.source,
       actualEndMonthIdx
     },
-    initiatives: readInitiatives(initiativeSheet),
+    initiatives,
     executive: {
       coi: buildSeries(kpiSheet, 3, 4, "Overall COI", "MB"),
       profit: buildSeries(kpiSheet, 5, 6, "Profit", "MB"),

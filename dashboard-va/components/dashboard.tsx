@@ -31,6 +31,7 @@ import {
 
 type DecimalMode = "auto" | "0" | "1" | "2";
 type InitiativeDrafts = Record<number, { impact: string; comment: string }>;
+type InitiativeSaveState = "idle" | "loading" | "saving" | "saved" | "error";
 type DropdownOption = {
   label: string;
   value: string;
@@ -51,10 +52,6 @@ function storageAvailable() {
   } catch {
     return false;
   }
-}
-
-function initiativeKey(monthIdx: number, no: number, field: "impact" | "comment") {
-  return `vaDash.init.${DASHBOARD_META.year}.${monthIdx}.${no}.${field === "comment" ? "cmt" : "impact"}`;
 }
 
 function metricMemoryKey(tab: TabKey) {
@@ -853,27 +850,37 @@ function InitiativesSection({
   monthIdx,
   decimals,
   drafts,
-  onDraftChange
+  onDraftChange,
+  saveState,
+  saveMessage,
+  onSave,
+  hasUnsavedChanges
 }: {
   data: DashboardData;
   monthIdx: number;
   decimals: DecimalMode;
   drafts: InitiativeDrafts;
   onDraftChange: (no: number, field: "impact" | "comment", value: string) => void;
+  saveState: InitiativeSaveState;
+  saveMessage: string;
+  onSave: () => void;
+  hasUnsavedChanges: boolean;
 }) {
   const actualEndMonthIdx = data.meta.actualEndMonthIdx;
+  const messageTone =
+    saveState === "error"
+      ? "border-rose-200 bg-rose-50 text-rose-700"
+      : saveState === "saved"
+        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+        : "border-slate-200 bg-slate-50 text-slate-600";
+  const saveDisabled = saveState === "loading" || saveState === "saving" || !hasUnsavedChanges;
 
   return (
     <div className="space-y-4">
       <div>
         <h3 className="text-2xl font-black text-brand-800">VA Initiatives</h3>
         <p className="text-lg text-slate-500">{selectedMonthLabel(monthIdx, actualEndMonthIdx)}</p>
-      </div>
-
-      <div className="rounded-panel border border-slate-200 bg-white p-4 text-base text-slate-600 shadow-soft">
-        Capture monthly progress, actual impact, and quick comments for each initiative. Values are stored in localStorage so they stay on this browser.
-      </div>
-
+      </div> 
       <div className="scrollbar-thin overflow-x-auto rounded-panel border border-slate-200 bg-white shadow-soft">
         <table className="min-w-full text-base">
           <thead className="bg-slate-50 text-brand-800">
@@ -917,6 +924,18 @@ function InitiativesSection({
           </tbody>
         </table>
       </div>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saveDisabled}
+          className={`rounded-xl px-5 py-3 text-sm font-black transition ${
+            saveDisabled ? "cursor-not-allowed bg-slate-200 text-slate-500" : "bg-blue-600 text-white shadow-lg hover:bg-blue-700"
+          }`}
+        >
+          {saveState === "saving" ? "Saving..." : "Save"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -929,6 +948,10 @@ export function Dashboard({ data }: { data: DashboardData }) {
   const [initiativeDrafts, setInitiativeDrafts] = useState<InitiativeDrafts>({});
   const [metricSelections, setMetricSelections] = useState<Record<string, string>>({});
   const [hasStorage, setHasStorage] = useState(false);
+  const [initiativeSaveState, setInitiativeSaveState] = useState<InitiativeSaveState>("idle");
+  const [initiativeStatusMessage, setInitiativeStatusMessage] = useState("Load and save initiative inputs from PostgreSQL.");
+  const [hasUnsavedInitiativeChanges, setHasUnsavedInitiativeChanges] = useState(false);
+  const initiativeDraftsRef = useRef<InitiativeDrafts>({});
 
   useEffect(() => {
     const available = storageAvailable();
@@ -944,17 +967,60 @@ export function Dashboard({ data }: { data: DashboardData }) {
   }, []);
 
   useEffect(() => {
-    if (!hasStorage) return;
+    initiativeDraftsRef.current = initiativeDrafts;
+  }, [initiativeDrafts]);
 
-    const nextDrafts: InitiativeDrafts = {};
-    for (const item of data.initiatives) {
-      nextDrafts[item.no] = {
-        impact: window.localStorage.getItem(initiativeKey(monthIdx, item.no, "impact")) ?? "",
-        comment: window.localStorage.getItem(initiativeKey(monthIdx, item.no, "comment")) ?? ""
-      };
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDrafts() {
+      setInitiativeSaveState("loading");
+      setInitiativeStatusMessage("Loading initiative inputs from PostgreSQL...");
+
+      try {
+        const response = await fetch(`/api/initiative-inputs?year=${data.meta.year}&monthIdx=${monthIdx}`, {
+          cache: "no-store"
+        });
+        const payload = (await response.json()) as {
+          drafts?: InitiativeDrafts;
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(payload.error ?? "Failed to load initiative inputs.");
+        }
+
+        if (cancelled) return;
+
+        const nextDrafts: InitiativeDrafts = {};
+        for (const item of data.initiatives) {
+          nextDrafts[item.no] = {
+            impact: payload.drafts?.[item.no]?.impact ?? "",
+            comment: payload.drafts?.[item.no]?.comment ?? ""
+          };
+        }
+
+        setInitiativeDrafts(nextDrafts);
+        initiativeDraftsRef.current = nextDrafts;
+        setHasUnsavedInitiativeChanges(false);
+        setInitiativeSaveState("idle");
+        setInitiativeStatusMessage("Connected to PostgreSQL. Edit your data, then click Save.");
+      } catch (error) {
+        if (cancelled) return;
+
+        const message = error instanceof Error ? error.message : "Failed to load initiative inputs.";
+        setInitiativeDrafts({});
+        setInitiativeSaveState("error");
+        setInitiativeStatusMessage(message);
+      }
     }
-    setInitiativeDrafts(nextDrafts);
-  }, [data.initiatives, hasStorage, monthIdx]);
+
+    loadDrafts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [data.initiatives, data.meta.year, monthIdx]);
 
   const selectedMetric = useMemo(() => metricSelections[tab] ?? "", [metricSelections, tab]);
 
@@ -966,17 +1032,60 @@ export function Dashboard({ data }: { data: DashboardData }) {
   }
 
   function handleInitiativeDraftChange(no: number, field: "impact" | "comment", value: string) {
+    const nextDraft = {
+      impact: field === "impact" ? value : initiativeDraftsRef.current[no]?.impact ?? "",
+      comment: field === "comment" ? value : initiativeDraftsRef.current[no]?.comment ?? ""
+    };
+
     setInitiativeDrafts((current) => ({
       ...current,
-      [no]: {
-        impact: current[no]?.impact ?? "",
-        comment: current[no]?.comment ?? "",
-        [field]: value
-      }
+      [no]: nextDraft
     }));
 
-    if (hasStorage) {
-      window.localStorage.setItem(initiativeKey(monthIdx, no, field), value);
+    initiativeDraftsRef.current = {
+      ...initiativeDraftsRef.current,
+      [no]: nextDraft
+    };
+    setHasUnsavedInitiativeChanges(true);
+    setInitiativeSaveState("idle");
+    setInitiativeStatusMessage(`You have unsaved changes for ${selectedMonthLabel(monthIdx, actualEndMonthIdx)}.`);
+  }
+
+  async function handleInitiativeSave() {
+    setInitiativeSaveState("saving");
+    setInitiativeStatusMessage(`Saving all changes for ${selectedMonthLabel(monthIdx, actualEndMonthIdx)}...`);
+
+    try {
+      const requests = data.initiatives.map(async (initiative) => {
+        const draft = initiativeDraftsRef.current[initiative.no] ?? { impact: "", comment: "" };
+        const response = await fetch("/api/initiative-inputs", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            year: data.meta.year,
+            monthIdx,
+            no: initiative.no,
+            impact: draft.impact,
+            comment: draft.comment
+          })
+        });
+
+        const payload = (await response.json()) as { error?: string };
+        if (!response.ok) {
+          throw new Error(payload.error ?? `Failed to save initiative ${initiative.no}.`);
+        }
+      });
+
+      await Promise.all(requests);
+      setHasUnsavedInitiativeChanges(false);
+      setInitiativeSaveState("saved");
+      setInitiativeStatusMessage(`All changes for ${selectedMonthLabel(monthIdx, actualEndMonthIdx)} are saved.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to save initiative inputs.";
+      setInitiativeSaveState("error");
+      setInitiativeStatusMessage(message);
     }
   }
 
@@ -1093,6 +1202,10 @@ export function Dashboard({ data }: { data: DashboardData }) {
                 decimals={decimals}
                 drafts={initiativeDrafts}
                 onDraftChange={handleInitiativeDraftChange}
+                saveState={initiativeSaveState}
+                saveMessage={initiativeStatusMessage}
+                onSave={handleInitiativeSave}
+                hasUnsavedChanges={hasUnsavedInitiativeChanges}
               />
             ) : null}
           </div>
